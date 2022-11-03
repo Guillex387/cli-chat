@@ -8,6 +8,13 @@ import (
 	"os"
 )
 
+type Client struct {
+	Name string
+	Conection net.Conn
+}
+
+// Utils
+
 func GetLocalIp() string {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
@@ -24,14 +31,41 @@ func CheckError(err error) {
 	}
 }
 
-func Client() {
-	// var ip string
-	// var port string
-	// fmt.Printf("Put the host IP: ")
-	// fmt.Scanf("%s", &ip)
-	// fmt.Printf("Put the host PORT: ")
-	// fmt.Scanf("%s", &port)
-	con, err := net.Dial("tcp4", "127.0.0.1:12345")
+// Clients Management
+
+func AddUser(name string, conn net.Conn, userArr *[]Client) {
+	*userArr = append(*userArr, Client{Name: name, Conection: conn})
+}
+
+func FindIndex(user Client, userArr *[]Client) int {
+	for i := 0; i < len(*userArr); i++ {
+		if (*userArr)[i].Name == user.Name {
+			return i
+		} 
+	}
+	return -1
+}
+
+func DeleteUser(user Client, userArr *[]Client) {
+	findIndex := FindIndex(user, userArr)
+	if findIndex == -1 {
+		return
+	}
+	slice1 := (*userArr)[0:findIndex]
+	slice2 := (*userArr)[(findIndex + 1):]
+	*userArr = append(slice1, slice2...)
+}
+
+// Modes
+
+func ClientMode() {
+	var ip string
+	var port string
+	fmt.Printf("Put the host IP: ")
+	fmt.Scanf("%s", &ip)
+	fmt.Printf("Put the host PORT: ")
+	fmt.Scanf("%s", &port)
+	con, err := net.Dial("tcp4", ip + ":" + port)
 	reader := bufio.NewReader(os.Stdin)
 	CheckError(err)
 	for {
@@ -50,7 +84,7 @@ func Client() {
 	con.Close()
 }
 
-func Server(port string) {
+func ServerMode(port string) {
 	fmt.Printf("Server IP: %s\n", GetLocalIp())
 	fmt.Printf("Server PORT: %s\n", port)
 	listener, err := net.Listen("tcp", ":" + port)
@@ -68,10 +102,10 @@ func Server(port string) {
 }
 
 func main() {
-	mode := os.Args[1]
-	if mode == "server" {
-		Server("12345")
-	} else {
-		Client()
-	}
+	// mode := os.Args[1]
+	// if mode == "server" {
+	// 	ServerMode("12345")
+	// } else {
+	// 	ClientMode()
+	// }
 }
