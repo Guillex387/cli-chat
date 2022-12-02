@@ -20,3 +20,9 @@ Insert your nick name: <your name in the chat>
 ```
 
 - For close the connection write keyboard "END"
+
+## License
+
+cli-chat Copyright (c) 2022 Guillex387. All rights reserved.
+
+Licensed under the [GNU AGPLv3](https://github.com/Guillex387/cli-chat/blob/master/LICENSE) license.
