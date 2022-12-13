@@ -1,50 +1,56 @@
 package messages
 
-var instructionsIds = map[string]int {
-  "": 0,       // Send/Receive normal message
-  "end": 1,    // Close connection
-  "sendf": 2,  // Send/Receive file
-  "kill": 3,   // Closes a user connection
-  "log": 4,    // Server logs
-}
-
-var idsInstructions = map[int]string {
-  0: "",       // Send/Receive normal message
-  1: "end",    // Close connection
-  2: "sendf",  // Send/Receive file
-  3: "kill",   // Closes a user connection
-  4: "log",    // Server logs
-}
-
 type Message struct {
   Instruction int
   Body string
   Input bool
 }
 
+var instructions = []string {
+  "",       // Send/Receive normal message
+  "end",    // Close connection
+  "sendf",  // Send/Receive file
+  "kill",   // Closes a user connection
+  "log",    // Server logs
+  "open",   // Open connection
+}
+
 // Parse message inputs to a instructions
 func MessageParse(msg string, input bool) Message {
-  instructionId := ""
+  inputInstruction := ""
   body := ""
+  // Check if message contents a instruction
   readingInstruction := msg[0] == '/'
+  // Message parser
   for i := 1; i < len(msg); i++ {
     if readingInstruction {
       if msg[i] == ' ' {
         readingInstruction = false
         continue
       }
-      instructionId += string(msg[i])
+      inputInstruction += string(msg[i])
     } else {
       body += string(msg[i])
     }
   }
+  // Check if input instruction exists
+  for id, instruction := range instructions {
+    if inputInstruction == instruction {
+      return Message {
+        Instruction: id,
+        Body: body,
+        Input: input,
+      }
+    }
+  }
   return Message {
-    Instruction: instructionsIds[instructionId],
-    Body: body,
+    Instruction: -1, // Unknow instructions
+    Body: "",
     Input: input,
   }
 }
 
+// Parse instructions to string messages
 func MessageStringify(msg Message) string {
-  return idsInstructions[msg.Instruction] + msg.Body
+  return instructions[msg.Instruction] + msg.Body
 }
