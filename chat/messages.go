@@ -1,10 +1,4 @@
-package messages
-
-type Message struct {
-  Instruction int
-  Body string
-  Input bool
-}
+package chat
 
 var instructions = []string {
   "",       // Send/Receive normal message
@@ -13,6 +7,27 @@ var instructions = []string {
   "kill",   // Closes a user connection
   "log",    // Server logs
   "open",   // Open connection
+  "error",  // Send/Receive some error
+}
+
+func existsInstruction(inputInstruction string) bool {
+  for _, instruction := range instructions {
+    if inputInstruction == instruction {
+      return true
+    }
+  }
+  return false
+}
+
+type Message struct {
+  Instruction string
+  Body string
+  Input bool
+}
+
+// Parse instructions to string messages
+func (msg Message) String() string {
+  return msg.Instruction + msg.Body
 }
 
 // Parse message inputs to a instructions
@@ -33,24 +48,17 @@ func MessageParse(msg string, input bool) Message {
       body += string(msg[i])
     }
   }
-  // Check if input instruction exists
-  for id, instruction := range instructions {
-    if inputInstruction == instruction {
-      return Message {
-        Instruction: id,
-        Body: body,
-        Input: input,
-      }
+  if existsInstruction(inputInstruction) {
+    return Message {
+      Instruction: inputInstruction,
+      Body: body,
+      Input: input,
     }
   }
   return Message {
-    Instruction: -1, // Unknow instructions
+    Instruction: "Unknow", // Unknow instructions
     Body: "",
     Input: input,
   }
 }
 
-// Parse instructions to string messages
-func MessageStringify(msg Message) string {
-  return instructions[msg.Instruction] + msg.Body
-}

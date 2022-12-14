@@ -1,7 +1,9 @@
-package clients
+package chat
 
 import (
+	"bufio"
 	"net"
+	"time"
 )
 
 type Client struct {
@@ -34,4 +36,27 @@ func DeleteUser(user Client, userArr *[]Client) {
 // Adds a user to the chat
 func AddUser(name string, conn net.Conn, userArr *[]Client) {
   *userArr = append(*userArr, Client{Name: name, Conection: conn})
+}
+
+// Put data buffer in connection tunnel
+func ReplyData(data string, userArr *[]Client, exception string) {
+  for _, compi := range *userArr {
+    if exception != "" && compi.Name != exception {
+      compi.Conection.Write([]byte(data))
+    }
+  }
+}
+
+func AcceptClients(listener net.Listener, userArr *[]Client) {
+  for {
+    conn, _ := listener.Accept()
+    name, _ := bufio.NewReader(conn).ReadString('\n')
+    if FindIndex(name, userArr) != -1 {
+      conn.Write([]byte("Error, the name already exists\n"))
+      conn.Close()
+      continue
+    }
+    AddUser(name, conn, userArr)
+    time.Sleep(time.Second / 2)
+  }
 }
