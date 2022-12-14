@@ -1,64 +1,49 @@
 package chat
 
-var instructions = []string {
-  "",       // Send/Receive normal message
-  "end",    // Close connection
-  "sendf",  // Send/Receive file
-  "kill",   // Closes a user connection
-  "log",    // Server logs
-  "open",   // Open connection
-  "error",  // Send/Receive some error
-}
-
-func existsInstruction(inputInstruction string) bool {
-  for _, instruction := range instructions {
-    if inputInstruction == instruction {
-      return true
-    }
-  }
-  return false
-}
-
-type Message struct {
-  Instruction string
+// Instructions:
+//
+// "" -> Send a normal message
+//
+// "open" -> Open a client connection
+//
+// "end" -> Close a client/server connection
+//
+// "sendf" -> Send a file
+//
+// "kill" -> kill a user (Host only)
+type Instruction struct {
+  Id string
   Body string
-  Input bool
+  Received bool
 }
 
 // Parse instructions to string messages
-func (msg Message) String() string {
-  return msg.Instruction + msg.Body
+func (i Instruction) String() string {
+  return i.Id + i.Body + "\n"
 }
 
-// Parse message inputs to a instructions
-func MessageParse(msg string, input bool) Message {
+// Parse instrcution inputs to a instructions
+func InstructionParse(data string, received bool) Instruction {
+  input := RemoveLinebreaks(data)
   inputInstruction := ""
   body := ""
   // Check if message contents a instruction
-  readingInstruction := msg[0] == '/'
+  readingInstruction := input[0] == '/'
   // Message parser
-  for i := 1; i < len(msg); i++ {
+  for i := 1; i < len(input); i++ {
     if readingInstruction {
-      if msg[i] == ' ' {
+      if input[i] == ' ' {
         readingInstruction = false
         continue
       }
-      inputInstruction += string(msg[i])
+      inputInstruction += string(input[i])
     } else {
-      body += string(msg[i])
+      body += string(input[i])
     }
   }
-  if existsInstruction(inputInstruction) {
-    return Message {
-      Instruction: inputInstruction,
-      Body: body,
-      Input: input,
-    }
-  }
-  return Message {
-    Instruction: "Unknow", // Unknow instructions
-    Body: "",
-    Input: input,
+  return Instruction {
+    Id: inputInstruction,
+    Body: body,
+    Received: received,
   }
 }
-
