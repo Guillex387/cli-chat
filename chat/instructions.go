@@ -14,7 +14,6 @@ package chat
 type Instruction struct {
   Id string
   Body string
-  Received bool
 }
 
 // Parse instructions to string messages
@@ -23,7 +22,7 @@ func (i Instruction) String() string {
 }
 
 // Parse instrcution inputs to a instructions
-func InstructionParse(data string, received bool) Instruction {
+func InstructionParse(data string) Instruction {
   input := RemoveLinebreaks(data)
   inputInstruction := ""
   body := ""
@@ -44,6 +43,5 @@ func InstructionParse(data string, received bool) Instruction {
   return Instruction {
     Id: inputInstruction,
     Body: body,
-    Received: received,
   }
 }
