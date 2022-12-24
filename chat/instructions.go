@@ -11,9 +11,16 @@ package chat
 // "sendf" -> Send a file
 //
 // "kill" -> kill a user (Host only)
+//
+// "log" -> Send a server log (Host only)
 type Instruction struct {
   Id string
   Body string
+}
+
+
+func NewIntruction(id string, body string) Instruction {
+  return Instruction {Id: id, Body: body};
 }
 
 // Parse instructions to string messages
