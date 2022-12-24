@@ -26,7 +26,7 @@ func (s *Server) FindUser(name string) int {
 
 func (s *Server) ReplyInstruction(instruction Instruction, exception string) {
 	for _, user := range s.UserArray {
-		if user.Name != exception {
+		if exception == "" || user.Name != exception {
 			user.SendInstruction(instruction)
 		}
 	}
@@ -39,16 +39,35 @@ func (s *Server) ListenUser(id int) {
 		instruction_str, _ := reader.ReadString('\n')
 		instruction := InstructionParse(instruction_str)
 		switch instruction.Id {
-		// TODO: Adds the instruction switch
+		case "":
+			s.ReplyInstruction(instruction, user.Name)
+		case "end":
+			s.DeleteUser(user)
+			return
+		// case "sendf":
+			// TODO: define this feature
+		case "default":
+			user.SendInstruction(NewIntruction("error", "Unknow instruction"))
 		}
 	}
 }
 
-func (s *Server) Adduser(user User) {
+func (s *Server) AddUser(user User) {
 	s.UserArray = append(s.UserArray, user)
 	userIndex := len(s.UserArray) - 1
 	go s.ListenUser(userIndex)
-	s.ReplyInstruction(Instruction {Id: "log", Body: user.Name + " added to server"}, user.Name)
+}
+
+func (s *Server) DeleteUser(user User) {
+	findIndex := s.FindUser(user.Name)
+  if findIndex == -1 {
+    return
+  }
+  slice1 := s.UserArray[0:findIndex]
+  slice2 := s.UserArray[(findIndex + 1):]
+  s.UserArray = append(slice1, slice2...)
+  user.Conection.Close()
+	s.ReplyInstruction(NewIntruction("log", user.Name + " closed connection"), "")
 }
 
 func (s *Server) Listen() {
@@ -59,15 +78,13 @@ func (s *Server) Listen() {
 		if instruction.Id == "open" {
 			userName := instruction.Body
 			if s.FindUser(userName) != -1 {
-				instruction := Instruction {Id: "error", Body: "The name already exists"}
-				conn.Write([]byte(instruction.String()))
+				conn.Write([]byte(NewIntruction("error", "The name already exists").String()))
 				conn.Close()
 			} else {
-				s.Adduser(User {Name: userName, Conection: conn})
+				s.AddUser(User {Name: userName, Conection: conn})
 			}
 		} else {
-			instruction := Instruction {Id: "error", Body: "Your father works in Colombia"}
-			conn.Write([]byte(instruction.String()))
+			conn.Write([]byte(NewIntruction("error", "Unknow instruction").String()))
 			conn.Close()
 		}
 	}
