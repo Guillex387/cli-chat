@@ -10,6 +10,15 @@ type Server struct {
 	UserArray []User 
 }
 
+func ValidName(name string) bool {
+	reservedNames := map[string]int {
+		"server": 1,
+		"log": 1,
+		"error": 1,
+	}
+	return (reservedNames[name] != 1)
+}
+
 func InitServer(port string) Server {
 	listener, _ := net.Listen("tcp", ":" + port)
 	return Server {Listener: listener, UserArray: make([]User, 0)}
@@ -46,7 +55,7 @@ func (s *Server) ListenUser(id int) {
 			return
 		// case "sendf":
 			// TODO: define this feature
-		case "default":
+		default:
 			user.SendInstruction(NewIntruction("error", "Unknow instruction"))
 		}
 	}
@@ -77,7 +86,10 @@ func (s *Server) Listen() {
 		instruction := InstructionParse(instruction_str)
 		if instruction.Id == "open" {
 			userName := instruction.Body
-			if s.FindUser(userName) != -1 {
+			if ValidName(userName) {
+				conn.Write([]byte(NewIntruction("error", "The name is not valid").String()))
+				conn.Close()
+			} else if s.FindUser(userName) != -1 {
 				conn.Write([]byte(NewIntruction("error", "The name already exists").String()))
 				conn.Close()
 			} else {
