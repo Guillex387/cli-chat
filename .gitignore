@@ -30,4 +30,6 @@
 *.out
 *.app
 
-build
+go.sum
+build/
+modules/
