@@ -10,5 +10,5 @@ type User struct {
 }
 
 func (c *User) SendInstruction(instruction Instruction) {
-  c.Conection.Write([]byte(instruction.String()))
+  c.Conection.Write(instruction.Bytes())
 }

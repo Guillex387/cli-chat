@@ -3,6 +3,7 @@ package chat
 import (
 	"bufio"
 	"net"
+	"time"
 )
 
 type Server struct {
@@ -19,9 +20,12 @@ func ValidName(name string) bool {
 	return (reservedNames[name] != 1)
 }
 
-func InitServer(port string) Server {
-	listener, _ := net.Listen("tcp", ":" + port)
-	return Server {Listener: listener, UserArray: make([]User, 0)}
+func InitServer(port string) (Server, error) {
+	listener, err := net.Listen("tcp", ":" + port)
+	if err != nil {
+		return Server{nil, nil}, &OpenServerError{}
+	}
+	return Server {Listener: listener, UserArray: make([]User, 0)}, nil
 }
 
 func (s *Server) FindUser(name string) int {
@@ -58,6 +62,7 @@ func (s *Server) ListenUser(id int) {
 		default:
 			user.SendInstruction(NewIntruction("error", "Unknow instruction"))
 		}
+		time.Sleep(500 * time.Millisecond)
 	}
 }
 
@@ -87,16 +92,17 @@ func (s *Server) Listen() {
 		if instruction.Id == "open" {
 			userName := instruction.Body
 			if ValidName(userName) {
-				conn.Write([]byte(NewIntruction("error", "The name is not valid").String()))
+				conn.Write(NewIntruction("error", "The name is not valid").Bytes())
 				conn.Close()
 			} else if s.FindUser(userName) != -1 {
-				conn.Write([]byte(NewIntruction("error", "The name already exists").String()))
+				conn.Write(NewIntruction("error", "The name already exists").Bytes())
 				conn.Close()
 			} else {
 				s.AddUser(User {Name: userName, Conection: conn})
+				conn.Write([]byte(instruction_str))
 			}
 		} else {
-			conn.Write([]byte(NewIntruction("error", "Unknow instruction").String()))
+			conn.Write(NewIntruction("error", "Unknow instruction").Bytes())
 			conn.Close()
 		}
 	}

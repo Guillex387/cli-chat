@@ -23,9 +23,9 @@ func NewIntruction(id string, body string) Instruction {
   return Instruction {Id: id, Body: body};
 }
 
-// Parse instructions to string messages
-func (i Instruction) String() string {
-  return i.Id + i.Body + "\n"
+// Parse instructions to string
+func (i Instruction) Bytes() []byte {
+  return []byte(i.Id + i.Body + "\n")
 }
 
 // Parse instrcution inputs to a instructions
