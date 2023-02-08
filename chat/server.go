@@ -10,6 +10,7 @@ import (
 type Server struct {
 	Listener net.Listener
 	UserArray []User
+  // TODO: add events for message feedback
 }
 
 // Validates if the nickname of a user
@@ -52,13 +53,32 @@ func (s *Server) ReplyInstruction(instruction Instruction, exception string) {
 	}
 }
 
+// Adds a user to the chat
+func (s *Server) AddUser(user User) {
+	s.UserArray = append(s.UserArray, user)
+	userIndex := len(s.UserArray) - 1
+	go s.ListenUser(userIndex)
+}
+
+// Removes a user from the chat
+func (s *Server) DeleteUser(user User) {
+	findIndex := s.FindUser(user.Name)
+  if findIndex == -1 {
+    return
+  }
+  s.UserArray = append(s.UserArray[0:findIndex], s.UserArray[(findIndex + 1):]...)
+  user.SendInstruction(NewlogInstruction("The host kill you"))
+  user.Conection.Close()
+	s.ReplyInstruction(NewlogInstruction(user.Name + " closed connection"), "")
+}
+
 // Listen the messages of a user
 func (s *Server) ListenUser(id int) {
 	user := &s.UserArray[id]
 	reader := bufio.NewReader(user.Conection)
 	for {
 		instruction_str, _ := reader.ReadString('\n')
-		instruction := InstructionParse(instruction_str)
+		instruction := BytesToInstruction([]byte(instruction_str))
 		switch instruction.Id {
 		case "":
 			s.ReplyInstruction(instruction, user.Name)
@@ -74,32 +94,12 @@ func (s *Server) ListenUser(id int) {
 	}
 }
 
-// Adds a user to the chat
-func (s *Server) AddUser(user User) {
-	s.UserArray = append(s.UserArray, user)
-	userIndex := len(s.UserArray) - 1
-	go s.ListenUser(userIndex)
-}
-
-// Removes a user from the chat
-func (s *Server) DeleteUser(user User) {
-	findIndex := s.FindUser(user.Name)
-  if findIndex == -1 {
-    return
-  }
-  slice1 := s.UserArray[0:findIndex]
-  slice2 := s.UserArray[(findIndex + 1):]
-  s.UserArray = append(slice1, slice2...)
-  user.Conection.Close()
-	s.ReplyInstruction(NewlogInstruction(user.Name + " closed connection"), "")
-}
-
 // Listen to new user connections
 func (s *Server) Listen() {
 	for {
 		conn, _ := s.Listener.Accept()
 		instruction_str, _ := bufio.NewReader(conn).ReadString('\n')
-		instruction := InstructionParse(instruction_str)
+		instruction := BytesToInstruction([]byte(instruction_str)) 
 		if instruction.Id == "open" {
 			userName := string(instruction.Args[0])
 			if !ValidName(userName) {

@@ -23,11 +23,6 @@ type Instruction struct {
   Args [][]byte
 }
 
-// The constructor of Instruction
-func NewIntruction(id string, args ...[]byte) Instruction {
-  return Instruction {Id: id, Args: args};
-}
-
 // Parse instructions to string
 func (i Instruction) Bytes() []byte {
   result := i.Id
@@ -37,14 +32,21 @@ func (i Instruction) Bytes() []byte {
   return []byte(result)
 }
 
-// Parse instrcution inputs to a instructions
-func InstructionParse(data string) Instruction {
-  dataSec := strings.Split(data[:len(data) - 1], " ")
-  args := make([][]byte, len(dataSec) - 1)
-  for i, _ := range args {
-    args[i], _ = base64.StdEncoding.DecodeString(dataSec[i + 1])
+// Parse a instruction buffer to a instruction
+func BytesToInstruction(buffer []byte) Instruction {
+  str_buffer := string(buffer)
+  splits := strings.Split(str_buffer, " ")
+  args := make([][]byte, 0)
+  for _, split := range splits[1:] {
+    arg, _ := base64.StdEncoding.DecodeString(split)
+    args = append(args, arg)
   }
-  return NewIntruction(dataSec[0], args...)
+  return NewIntruction(splits[0], args...)
+}
+
+// The constructor of Instruction
+func NewIntruction(id string, args ...[]byte) Instruction {
+  return Instruction {Id: id, Args: args}
 }
 
 // Creates a log instruction
@@ -76,3 +78,8 @@ func NewOpenInstruction(userName string) Instruction {
 func NewMsgInstruction(userName string, msg string) Instruction {
   return NewIntruction("", []byte(userName), []byte(msg))
 }
+
+// Creates a sendf instruction
+// func NewSendfInstruction(filepath string) []Instruction {
+//   // TODO: define the instruction for read the file and parsed in instruction chunks
+// }
