@@ -1,5 +1,8 @@
 package chat
 
+// A interface for interact with clients
 type Client interface {
-  // TODO: define the interface
+  MessageListen(callback func(instruction Instruction))
+  SendInstruction(instruction Instruction)
+  Close()
 }
