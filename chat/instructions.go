@@ -9,6 +9,8 @@ import (
 //
 // "" -> Send a normal message
 //
+// "ok" -> Send a ok response
+//
 // "open" -> Open a client connection
 //
 // "end" -> Close a client/server connection
@@ -77,6 +79,11 @@ func NewOpenInstruction(userName string) Instruction {
 // Creates a message instruction
 func NewMsgInstruction(userName string, msg string) Instruction {
   return NewIntruction("", []byte(userName), []byte(msg))
+}
+
+// Creates a ok instruction
+func NewOkInstruction() Instruction {
+  return NewIntruction("ok")
 }
 
 // Creates a sendf instruction

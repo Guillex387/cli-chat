@@ -1,34 +1,38 @@
 package chat
 
+// Struct that represent the server client
 type ServerClient struct {
   Server Server
 }
 
-func CreateServerClient(server Server) ServerClient {
-  return ServerClient {Server: server}
+// Creates a client for a server
+func CreateServerClient(server Server) Client {
+  return &ServerClient {Server: server}
 }
 
-func (client *ServerClient) MessageListen(callback func(instruction Instruction)) {
-  // TODO: define this
+// Creates a listener for the incoming messages
+func (c *ServerClient) MessageListen(callback func(instruction Instruction)) func() {
+  return c.Server.SendEvent.CreateListener(callback)
 }
 
-func (client *ServerClient) SendInstruction(instruction Instruction) {
+// Send a instruction to server
+func (c *ServerClient) SendInstruction(instruction Instruction) error {
   switch instruction.Id {
-  case "":
-    client.Server.ReplyInstruction(instruction, "")
-  case "kill":
-    user := client.Server.FindUser(string(instruction.Args[0]))
-    client.Server.DeleteUser(client.Server.UserArray[user])
-  case "end":
-    client.Close()
-  default:
-    return
+    case "":
+      c.Server.ReplyInstruction(instruction, "")
+    case "kill":
+      user := c.Server.FindUser(string(instruction.Args[0]))
+      c.Server.DeleteUser(c.Server.UserArray[user])
+    case "end":
+      c.Close()
   }
+  return nil
 }
 
-func (client *ServerClient) Close() {
-  for _, user := range client.Server.UserArray {
-    client.Server.DeleteUser(user)
+// Close the server and the client
+func (c *ServerClient) Close() {
+  for _, user := range c.Server.UserArray {
+    c.Server.DeleteUser(user)
   }
-  client.Server.Listener.Close()
+  c.Server.Listener.Close()
 }
