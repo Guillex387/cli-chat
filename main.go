@@ -81,8 +81,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				case tea.KeyCtrlC, tea.KeyEsc:
 					return m, tea.Quit
 				case tea.KeyEnter:
-					instruction := chat.InstructionParse(m.textInput.Value())
-					m.AddMessage(instruction.Id, instruction.Body)
+          // TODO: make a parser for the instructions
+					// instruction := m.textInput.Value()
+					// m.AddMessage(instruction.Id, instruction.Body)
 					m.viewPort.SetContent(*m.messages)
 					m.textInput.Reset()
 					m.viewPort.GotoBottom()

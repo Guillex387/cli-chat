@@ -25,7 +25,7 @@ func OpenConnection(ip string, port string, nickname string) (Client, error) {
 		return nil, &ConnectionIOError{}
 	}
 	responseInstruction := BytesToInstruction([]byte(response))
-	if responseInstruction.Id == "open" {
+	if responseInstruction.Id == "ok" {
 		return &UserClient{Conection: conn, ReceiveEvent: NewEvent()}, nil
 	}
 	return nil, &OpenConnectionError{}
