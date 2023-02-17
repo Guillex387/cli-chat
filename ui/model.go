@@ -10,29 +10,36 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// TODO: document this file and find the solution for
-//       the pointer bug in the interface tea.Model
-
+// Viewport constants
 const VIEW_WIDTH = 70
 const VIEW_HEIGHT = 40
 
+// Represent a event of type tick
 type TickMsg time.Time
 
+// TODO: implent it
+// Represents the style of the ui
 type Style struct  {
   FocusColor string
   ErrorColor string
   SpecialColor string
 }
 
-type Model struct {
+// Represents the data of the model
+type ModelData struct {
   Messages string
   RenderedMessages bool
-  ViewPort viewport.Model
-  TextInput textinput.Model
-  Error error
 }
 
-func InitModel(client chat.Client) Model {
+// Represents the ui model
+type Model struct {
+  Data *ModelData
+  ViewPort viewport.Model
+  TextInput textinput.Model
+}
+
+// Inits the model
+func InitModel(client chat.Client, data *ModelData) Model {
   textInput := textinput.New()
   textInput.Placeholder = "Write a message/command..."
   textInput.Focus()
@@ -40,25 +47,26 @@ func InitModel(client chat.Client) Model {
   textInput.Width = 100
   viewPort := viewport.New(VIEW_WIDTH, VIEW_HEIGHT)
   return Model{
-    Messages: "",
-    RenderedMessages: false,
+    Data: data,
     TextInput: textInput,
     ViewPort: viewPort,
-    Error: nil,
   }
 }
 
-func (m* Model) Init() tea.Cmd {
+// Inits the model loop
+func (m Model) Init() tea.Cmd {
   return tea.Batch(textinput.Blink, m.CheckMessages(), tea.EnterAltScreen)
 }
 
-func (m* Model) CheckMessages() tea.Cmd {
+// Check if are not rendered messages
+func (m Model) CheckMessages() tea.Cmd {
   return tea.Tick(time.Millisecond * 500, func(t time.Time) tea.Msg {
     return TickMsg(t)
   })
 }
 
-func (m* Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+// Callback of ui update
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
   var (
     textInputCmd tea.Cmd
     viewPortCmd tea.Cmd
@@ -71,9 +79,9 @@ func (m* Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
       // Control switch
       switch msg.Type {
         case tea.KeyCtrlC, tea.KeyEsc:
-          return *m, tea.Quit
+          return m, tea.Quit
         case tea.KeyEnter:
-          m.ViewPort.SetContent(m.Messages)
+          m.ViewPort.SetContent(m.Data.Messages)
           m.TextInput.Reset()
           m.ViewPort.GotoBottom()
         case tea.KeyUp:
@@ -82,17 +90,18 @@ func (m* Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
           m.ViewPort.YPosition++
       }
     case TickMsg:
-      if !m.RenderedMessages {
-        m.ViewPort.SetContent(m.Messages)
+      if !m.Data.RenderedMessages {
+        m.ViewPort.SetContent(m.Data.Messages)
         m.ViewPort.GotoBottom()
-        return *m, tea.Batch(textInputCmd, viewPortCmd, m.CheckMessages())
+        return m, tea.Batch(textInputCmd, viewPortCmd, m.CheckMessages())
       }
   }
-  return *m, tea.Batch(textInputCmd, viewPortCmd)
+  return m, tea.Batch(textInputCmd, viewPortCmd)
 }
 
-func (m* Model) View() string {
-  m.RenderedMessages = true
+// The render of the modell into a string
+func (m Model) View() string {
+  m.Data.RenderedMessages = true
   return fmt.Sprintf(
     "%s\n\n%s",
     m.ViewPort.View(),
