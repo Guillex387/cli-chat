@@ -17,7 +17,6 @@ const VIEW_HEIGHT = 40
 // Represent a event of type tick
 type TickMsg time.Time
 
-// TODO: implent it
 // Represents the style of the ui
 type Style struct  {
   FocusColor string
@@ -25,10 +24,52 @@ type Style struct  {
   SpecialColor string
 }
 
+// Inits the Style struct
+func NewStyle(focusColor string, errorColor string, specialColor string) Style {
+  return Style{
+    FocusColor: focusColor,
+    ErrorColor: errorColor,
+    SpecialColor: specialColor,
+  }
+}
+
 // Represents the data of the model
 type ModelData struct {
   Messages string
   RenderedMessages bool
+}
+
+// Inits the ModelData struct
+func NewModelData() ModelData {
+  return ModelData{
+    Messages: "",
+    RenderedMessages: false,
+  }
+}
+
+// Adds a message to chat buffer
+func (d *ModelData) AddMessage(sender string, message string, style Style) {
+  senderWidth := len(sender) + 2
+  buffer := RenderColor(sender + ": ", style.FocusColor) +
+    FormatText(message, VIEW_WIDTH - senderWidth, senderWidth) + "\n"
+  d.Messages += buffer
+  d.RenderedMessages = false
+}
+
+// Adds a error message to chat buffer
+func (d *ModelData) AddError(error string, style Style) {
+  buffer := FormatText(RenderColor(error, style.ErrorColor), VIEW_WIDTH, 0) +
+    "\n"
+  d.Messages += buffer
+  d.RenderedMessages = false
+}
+
+// Adds a log message to chat buffer
+func (d *ModelData) AddLog(log string, style Style) {
+  buffer := FormatText(RenderColor(log, style.SpecialColor), VIEW_WIDTH, 0) +
+    "\n"
+  d.Messages += buffer
+  d.RenderedMessages = false
 }
 
 // Represents the ui model
@@ -91,6 +132,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
       }
     case TickMsg:
       if !m.Data.RenderedMessages {
+        m.Data.RenderedMessages = true
         m.ViewPort.SetContent(m.Data.Messages)
         m.ViewPort.GotoBottom()
         return m, tea.Batch(textInputCmd, viewPortCmd, m.CheckMessages())
@@ -101,7 +143,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // The render of the modell into a string
 func (m Model) View() string {
-  m.Data.RenderedMessages = true
   return fmt.Sprintf(
     "%s\n\n%s",
     m.ViewPort.View(),

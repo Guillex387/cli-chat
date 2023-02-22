@@ -1,25 +1,14 @@
 # cli-chat
 
-This is a light command-line tool written in GO, for send messages to other users in local connection.
+This is a command-line tool written in [Go](https://go.dev/),
+for create or connect to a chat.
 
-## Usage
+## TODO
 
-- For create a chat host:
-
-```
-$ ./chat server <PORT>
-```
-
-- For join as a client to host:
-
-```
-$ ./chat client
-Put the host IP: <the ip of the host>
-Put the PORT: <the port of the host>
-Insert your nick name: <your name in the chat>
-```
-
-- For close the connection write keyboard "END"
+- [ ] Implement a instruction parser.
+- [ ] Finish the UI models definitions.
+- [ ] Implement the send files feature.
+- [ ] Write a guide of use.
 
 ## License
 

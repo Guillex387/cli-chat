@@ -23,6 +23,8 @@ func (c *ServerClient) SendInstruction(instruction Instruction) error {
     case "kill":
       user := c.Server.FindUser(string(instruction.Args[0]))
       c.Server.DeleteUser(c.Server.UserArray[user])
+    // case "sendf":
+      // TODO: define this feature
     case "end":
       c.Close()
   }
