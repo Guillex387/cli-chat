@@ -9,6 +9,8 @@ import (
 //
 // "" -> Send a normal message
 //
+// "query" -> Send a query to the user
+//
 // "ok" -> Send a ok response
 //
 // "open" -> Open a client connection
@@ -84,6 +86,11 @@ func NewMsgInstruction(userName string, msg string) Instruction {
 // Creates a ok instruction
 func NewOkInstruction() Instruction {
   return NewIntruction("ok")
+}
+
+// Creates a query instruction
+func NewQueryInstruction(query string) Instruction {
+  return NewIntruction("query", []byte(query))
 }
 
 // Creates a sendf instruction

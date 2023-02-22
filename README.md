@@ -5,9 +5,13 @@ for create or connect to a chat.
 
 ## TODO
 
-- [ ] Implement a instruction parser.
+- [ ] Implement the main function with a
+command-line args parser, help menu, ...
+
 - [ ] Finish the UI models definitions.
+
 - [ ] Implement the send files feature.
+
 - [ ] Write a guide of use.
 
 ## License
