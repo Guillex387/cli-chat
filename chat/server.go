@@ -61,7 +61,7 @@ func (s *Server) AddUser(user User) {
   user.MessageListen(func(instruction Instruction) {
     switch instruction.Id {
       case "":
-        s.ReplyInstruction(instruction, user.Name)
+        s.ReplyInstruction(NewMsgInstruction(user.Name, string(instruction.Args[1])), user.Name)
       case "end":
         s.DeleteUser(user)
       // case "sendf":

@@ -1,5 +1,7 @@
 package ui
 
+import "cli-chat/chat"
+
 // Parse a instruction from the
 // user input
 type InputInstruction struct {
@@ -61,5 +63,24 @@ func ParseInstruction(input string) InputInstruction {
   }
 }
 
-// TODO: make a function for convert an "InputInstruction"
-//       in a "chat.Instruction"
+// Parse a user input to a chat.Instruction
+func (i InputInstruction) ToInstruction() (chat.Instruction, error) {
+  switch i.Id {
+    case "":
+      if len(i.Body) >= 1 {
+        // TODO  
+      }
+      return chat.NewMsgInstruction("", i.Body[0]), nil
+    case "kill":
+      if len(i.Body) >= 1 {
+        // TODO
+      }
+      return chat.NewKillInstruction(i.Body[0]), nil
+    case "ok":
+      return chat.NewOkInstruction(), nil
+    case "end":
+      return chat.NewEndInstruction(), nil
+    // case "sendf": // TODO: implement the sendf
+  }
+  // TODO
+}
