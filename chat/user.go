@@ -1,8 +1,8 @@
 package chat
 
 import (
-	"bufio"
-	"net"
+  "bufio"
+  "net"
 )
 
 // User (in server) struct representation

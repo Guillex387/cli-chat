@@ -1,8 +1,8 @@
 package chat
 
 import (
-	"encoding/base64"
-	"strings"
+  "encoding/base64"
+  "strings"
 )
 
 // Instructions:
@@ -12,6 +12,8 @@ import (
 // "query" -> Send a query to the user
 //
 // "ok" -> Send a ok response
+//
+// "error" -> Send an error (Host only)
 //
 // "open" -> Open a client connection
 //

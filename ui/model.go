@@ -17,78 +17,42 @@ const VIEW_HEIGHT = 40
 // Represent a event of type tick
 type TickMsg time.Time
 
-// Represents the style of the ui
-type Style struct  {
-  FocusColor string
-  ErrorColor string
-  SpecialColor string
-}
-
-// Inits the Style struct
-func NewStyle(focusColor string, errorColor string, specialColor string) Style {
-  return Style{
-    FocusColor: focusColor,
-    ErrorColor: errorColor,
-    SpecialColor: specialColor,
-  }
-}
-
-// Represents the data of the model
-type ModelData struct {
-  Messages string
-  RenderedMessages bool
-}
-
-// Inits the ModelData struct
-func NewModelData() ModelData {
-  return ModelData{
-    Messages: "",
-    RenderedMessages: false,
-  }
-}
-
-// Adds a message to chat buffer
-func (d *ModelData) AddMessage(sender string, message string, style Style) {
-  senderWidth := len(sender) + 2
-  buffer := RenderColor(sender + ": ", style.FocusColor) +
-    FormatText(message, VIEW_WIDTH - senderWidth, senderWidth) + "\n"
-  d.Messages += buffer
-  d.RenderedMessages = false
-}
-
-// Adds a error message to chat buffer
-func (d *ModelData) AddError(error string, style Style) {
-  buffer := FormatText(RenderColor(error, style.ErrorColor), VIEW_WIDTH, 0) +
-    "\n"
-  d.Messages += buffer
-  d.RenderedMessages = false
-}
-
-// Adds a log message to chat buffer
-func (d *ModelData) AddLog(log string, style Style) {
-  buffer := FormatText(RenderColor(log, style.SpecialColor), VIEW_WIDTH, 0) +
-    "\n"
-  d.Messages += buffer
-  d.RenderedMessages = false
-}
-
 // Represents the ui model
 type Model struct {
+  Client chat.Client
   Data *ModelData
+  Style *Style
   ViewPort viewport.Model
   TextInput textinput.Model
 }
 
 // Inits the model
-func InitModel(client chat.Client, data *ModelData) Model {
+func InitModel(client chat.Client, data *ModelData, style *Style) Model {
+  // Components config
   textInput := textinput.New()
   textInput.Placeholder = "Write a message/command..."
   textInput.Focus()
   textInput.CharLimit = 300
   textInput.Width = 100
   viewPort := viewport.New(VIEW_WIDTH, VIEW_HEIGHT)
+  // Messages listener
+  client.MessageListen(func(instruction chat.Instruction) {
+    switch instruction.Id {
+      case "":
+        data.AddMessage(string(instruction.Args[0]), string(instruction.Args[1]), style)
+      case "log":
+        data.AddLog(string(instruction.Args[0]), style)
+      case "error":
+        data.AddError(string(instruction.Args[0]), style)
+      // case "query": // TODO: implement the query in the ui
+      case "end":
+        tea.Quit()
+    }
+  })
   return Model{
+    Client: client,
     Data: data,
+    Style: style,
     TextInput: textInput,
     ViewPort: viewPort,
   }

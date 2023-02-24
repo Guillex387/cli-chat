@@ -8,7 +8,9 @@ for create or connect to a chat.
 - [ ] Implement the main function with a
 command-line args parser, help menu, ...
 
-- [ ] Finish the UI models definitions.
+- [ ] Implement the "InputInstruction" to "Instruction" converter.
+
+- [ ] Implement query feature.
 
 - [ ] Implement the send files feature.
 

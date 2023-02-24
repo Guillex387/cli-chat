@@ -25,27 +25,26 @@ func ParseInstruction(input string) InputInstruction {
       Body: []string{input},
     }
   }
-  input += " "
-  splits := make([]string, 0)
-  openSemiCol := false
+  tokenList := make([]string, 0)
+  openQuote := false
   token := ""
   // This loops checks the letters and
   // separates the input in tokens
   for _, letter := range input[1:] {
     if letter == '"' {
-      if openSemiCol {
-        splits = append(splits, token)
-        openSemiCol = false
+      if openQuote {
+        tokenList = append(tokenList, token)
+        openQuote = false
         token = ""
         continue
       }
-      openSemiCol = true
+      openQuote = true
       token = ""
       continue
     }
-    if letter == ' ' && !openSemiCol {
+    if letter == ' ' && !openQuote {
       if len(token) != 0 {
-        splits = append(splits, token)
+        tokenList = append(tokenList, token)
       }
       token = ""
       continue
@@ -54,10 +53,13 @@ func ParseInstruction(input string) InputInstruction {
   }
   // Checks if exists a remain token
   if len(token) != 0 {
-    splits = append(splits, token)
+    tokenList = append(tokenList, token)
   }
   return InputInstruction{
-    Id: splits[0],
-    Body: splits[1:],
+    Id: tokenList[0],
+    Body: tokenList[1:],
   }
 }
+
+// TODO: make a function for convert an "InputInstruction"
+//       in a "chat.Instruction"
