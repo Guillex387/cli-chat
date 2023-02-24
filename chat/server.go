@@ -28,7 +28,7 @@ func ValidName(name string) bool {
 func InitServer(port string) (Server, error) {
   listener, err := net.Listen("tcp", ":" + port)
   if err != nil {
-    return Server{nil, nil, NewEvent()}, &OpenServerError{}
+    return Server{nil, nil, NewEvent()}, OpenServerError{}
   }
   return Server {Listener: listener, UserArray: make([]User, 0)}, nil
 }

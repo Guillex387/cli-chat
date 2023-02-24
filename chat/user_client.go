@@ -16,19 +16,19 @@ type UserClient struct {
 func OpenConnection(ip string, port string, nickname string) (Client, error) {
   conn, connectError := net.Dial("tcp4", ip + ":" + port)
   if (connectError != nil) {
-    return nil, &OpenConnectionError{}
+    return nil, OpenConnectionError{}
   }
   openRequest := NewOpenInstruction(nickname) 
   conn.Write(openRequest.Bytes())
   response, writeError := bufio.NewReader(conn).ReadString('\n')
   if writeError != nil {
-    return nil, &ConnectionIOError{}
+    return nil, ConnectionIOError{}
   }
   responseInstruction := BytesToInstruction([]byte(response))
   if responseInstruction.Id == "ok" {
     return &UserClient{Conection: conn, ReceiveEvent: NewEvent()}, nil
   }
-  return nil, &OpenConnectionError{}
+  return nil, OpenConnectionError{}
 }
 
 // Executes a callback when receive/send a message

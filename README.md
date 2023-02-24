@@ -8,8 +8,6 @@ for create or connect to a chat.
 - [ ] Implement the main function with a
 command-line args parser, help menu, ...
 
-- [ ] Define the parser errors
-
 - [ ] Implement the "InputInstruction" to "Instruction" converter.
 
 - [ ] Implement query feature.

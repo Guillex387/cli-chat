@@ -67,13 +67,13 @@ func ParseInstruction(input string) InputInstruction {
 func (i InputInstruction) ToInstruction() (chat.Instruction, error) {
   switch i.Id {
     case "":
-      if len(i.Body) >= 1 {
-        // TODO  
+      if len(i.Body) < 1 {
+        return chat.Instruction{}, SyntaxError{}
       }
       return chat.NewMsgInstruction("", i.Body[0]), nil
     case "kill":
-      if len(i.Body) >= 1 {
-        // TODO
+      if len(i.Body) < 1 {
+        return chat.Instruction{}, SyntaxError{}
       }
       return chat.NewKillInstruction(i.Body[0]), nil
     case "ok":
@@ -82,5 +82,5 @@ func (i InputInstruction) ToInstruction() (chat.Instruction, error) {
       return chat.NewEndInstruction(), nil
     // case "sendf": // TODO: implement the sendf
   }
-  // TODO
+  return chat.Instruction{}, SyntaxError{}
 }
