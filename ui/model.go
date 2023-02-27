@@ -35,20 +35,20 @@ func InitModel(client chat.Client, data *ModelData, style *Style) Model {
   textInput.CharLimit = 300
   textInput.Width = 100
   viewPort := viewport.New(VIEW_WIDTH, VIEW_HEIGHT)
-  // Messages listener
-  client.MessageListen(func(instruction chat.Instruction) {
-    switch instruction.Id {
-      case "":
-        data.AddMessage(string(instruction.Args[0]), string(instruction.Args[1]), style)
-      case "log":
-        data.AddLog(string(instruction.Args[0]), style)
-      case "error":
-        data.AddError(string(instruction.Args[0]), style)
-      // case "query": // TODO: implement the query in the ui
-      case "end":
-        tea.Quit()
-    }
-  })
+  // TODO: Messages listener
+  // client.MessageListen(func(instruction chat.Instruction) {
+  //   switch instruction.Id {
+  //     case "":
+  //       data.AddMessage(string(instruction.Args[0]), string(instruction.Args[1]), style)
+  //     case "log":
+  //       data.AddLog(string(instruction.Args[0]), style)
+  //     case "error":
+  //       data.AddError(string(instruction.Args[0]), style)
+  //     // case "query": // TODO: implement the query in the ui
+  //     case "end":
+  //       tea.Quit()
+  //   }
+  // })
   return Model{
     Client: client,
     Data: data,

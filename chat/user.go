@@ -32,9 +32,9 @@ func (u *User) Listen() {
   }
 }
 
-// Creates a listener to the message event
-func (u *User) MessageListen(callback func(instruction Instruction)) func() {
-  return u.MessageEvent.CreateListener(callback)
+// Getter of the event manager
+func (u *User) Event() Event {
+  return u.MessageEvent
 }
 
 // Send a close connection messages and close the connection

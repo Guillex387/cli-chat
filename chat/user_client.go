@@ -42,9 +42,9 @@ func (c *UserClient) Listen() {
   }
 }
 
-// Creates a message listener
-func (c *UserClient) MessageListen(callback func(instruction Instruction)) func() {
-  return c.ReceiveEvent.CreateListener(callback)
+// Getter of the event manager
+func (c *UserClient) Event() Event {
+  return c.ReceiveEvent
 }
 
 // Send a instruction to the host

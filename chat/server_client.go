@@ -10,9 +10,9 @@ func CreateServerClient(server Server) Client {
   return &ServerClient {Server: server}
 }
 
-// Creates a listener for the incoming messages
-func (c *ServerClient) MessageListen(callback func(instruction Instruction)) func() {
-  return c.Server.SendEvent.CreateListener(callback)
+// Getter of the event manager
+func (c *ServerClient) Event() Event {
+  return c.Server.SendEvent
 }
 
 // Send a instruction to server
@@ -23,8 +23,7 @@ func (c *ServerClient) SendInstruction(instruction Instruction) error {
     case "kill":
       user := c.Server.FindUser(string(instruction.Args[0]))
       c.Server.DeleteUser(c.Server.UserArray[user])
-    // case "sendf":
-      // TODO: define this feature
+    // TODO: define the sendf feature
     case "end":
       c.Close()
   }

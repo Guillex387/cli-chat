@@ -58,17 +58,14 @@ func (s *Server) FindUser(name string) int {
 func (s *Server) AddUser(user User) {
   s.UserArray = append(s.UserArray, user)
   go user.Listen()
-  user.MessageListen(func(instruction Instruction) {
-    switch instruction.Id {
-      case "":
-        s.ReplyInstruction(NewMsgInstruction(user.Name, string(instruction.Args[1])), user.Name)
-      case "end":
-        s.DeleteUser(user)
-      // case "sendf":
-        // TODO: define this feature
-      default:
-        user.SendInstruction(NewErrorInstruction("Unknow instruction"))
-    }
+  msgListener := user.MessageEvent.On("", func(this EventListener, instruction Instruction) {
+    s.ReplyInstruction(NewMsgInstruction(user.Name, string(instruction.Args[1])), user.Name)
+  })
+  // TODO: implement the sendf
+  user.MessageEvent.On("end", func(this EventListener, instruction Instruction) {
+    s.DeleteUser(user)
+    user.MessageEvent.DeleteListener(msgListener)
+    user.MessageEvent.DeleteListener(this)
   })
 }
 
