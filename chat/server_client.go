@@ -11,8 +11,8 @@ func CreateServerClient(server Server) Client {
 }
 
 // Getter of the event manager
-func (c *ServerClient) Event() Event {
-  return c.Server.SendEvent
+func (c *ServerClient) Event() *Event {
+  return &c.Server.SendEvent
 }
 
 // Send a instruction to server

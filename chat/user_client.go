@@ -43,8 +43,8 @@ func (c *UserClient) Listen() {
 }
 
 // Getter of the event manager
-func (c *UserClient) Event() Event {
-  return c.ReceiveEvent
+func (c *UserClient) Event() *Event {
+  return &c.ReceiveEvent
 }
 
 // Send a instruction to the host

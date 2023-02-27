@@ -19,15 +19,14 @@ type TickMsg time.Time
 
 // Represents the ui model
 type Model struct {
-  Client chat.Client
+  Client *chat.Client
   Data *ModelData
-  Style *Style
   ViewPort viewport.Model
   TextInput textinput.Model
 }
 
 // Inits the model
-func InitModel(client chat.Client, data *ModelData, style *Style) Model {
+func InitModel(client *chat.Client, data *ModelData) Model {
   // Components config
   textInput := textinput.New()
   textInput.Placeholder = "Write a message/command..."
@@ -52,7 +51,6 @@ func InitModel(client chat.Client, data *ModelData, style *Style) Model {
   return Model{
     Client: client,
     Data: data,
-    Style: style,
     TextInput: textInput,
     ViewPort: viewPort,
   }
@@ -65,7 +63,7 @@ func (m Model) Init() tea.Cmd {
 
 // Check if are not rendered messages
 func (m Model) CheckMessages() tea.Cmd {
-  return tea.Tick(time.Millisecond * 500, func(t time.Time) tea.Msg {
+  return tea.Tick(time.Millisecond * 50, func(t time.Time) tea.Msg {
     return TickMsg(t)
   })
 }
@@ -86,7 +84,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         case tea.KeyCtrlC, tea.KeyEsc:
           return m, tea.Quit
         case tea.KeyEnter:
-          m.ViewPort.SetContent(m.Data.Messages)
+          text := m.TextInput.Value()
+          instruction, err := ParseInstruction(text).ToInstruction()
+          if err != nil {
+            (*m.Client).SendInstruction(chat.NewErrorInstruction(err.Error()))
+          } else {
+            (*m.Client).SendInstruction(instruction)
+          }
           m.TextInput.Reset()
           m.ViewPort.GotoBottom()
         case tea.KeyUp:
@@ -102,7 +106,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         return m, tea.Batch(textInputCmd, viewPortCmd, m.CheckMessages())
       }
   }
-  return m, tea.Batch(textInputCmd, viewPortCmd)
+  return m, tea.Batch(textInputCmd, viewPortCmd, m.CheckMessages())
 }
 
 // The render of the modell into a string
