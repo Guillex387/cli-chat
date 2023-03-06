@@ -3,5 +3,5 @@ package ui
 type SyntaxError struct {}
 
 func (e SyntaxError) Error() string {
-  return "Error parsing the input"
+  return "Syntax error in the input instruction"
 }

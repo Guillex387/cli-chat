@@ -65,6 +65,7 @@ func ParseInstruction(input string) InputInstruction {
 
 // Parse a user input to a chat.Instruction
 func (i InputInstruction) ToInstruction() (chat.Instruction, error) {
+  // TODO: put the instruction format based in a standard
   switch i.Id {
     case "":
       if len(i.Body) < 1 {

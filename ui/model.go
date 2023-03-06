@@ -11,8 +11,8 @@ import (
 )
 
 // Viewport constants
-const VIEW_WIDTH = 70
-const VIEW_HEIGHT = 40
+const ViewWidth = 70
+const ViewHeight = 40
 
 // Represent a event of type tick
 type TickMsg time.Time
@@ -33,7 +33,7 @@ func InitModel(client *chat.Client, data *ModelData) Model {
   textInput.Focus()
   textInput.CharLimit = 300
   textInput.Width = 100
-  viewPort := viewport.New(VIEW_WIDTH, VIEW_HEIGHT)
+  viewPort := viewport.New(ViewWidth, ViewHeight)
   // TODO: Messages listener
   // client.MessageListen(func(instruction chat.Instruction) {
   //   switch instruction.Id {
@@ -109,7 +109,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
   return m, tea.Batch(textInputCmd, viewPortCmd, m.CheckMessages())
 }
 
-// The render of the modell into a string
+// Render the model
 func (m Model) View() string {
   return fmt.Sprintf(
     "%s\n\n%s",
