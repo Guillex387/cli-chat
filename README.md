@@ -5,9 +5,6 @@ for create or connect to a chat.
 
 ## TODO
 
-- [ ] Implement the main function with a
-command-line args parser, help menu, ...
-
 - [ ] Document and define the features of each instruction
 
 - [ ] Implement the "InputInstruction" to "Instruction" converter.
