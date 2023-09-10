@@ -4,5 +4,6 @@ package chat
 type Client interface {
   Event() *Event
   SendInstruction(Instruction) error
+  Listen()
   Close()
 }

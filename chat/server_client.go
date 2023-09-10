@@ -1,5 +1,7 @@
 package chat
 
+import "fmt"
+
 // Struct that represent the server client
 type ServerClient struct {
   Server Server
@@ -19,15 +21,27 @@ func (c *ServerClient) Event() *Event {
 func (c *ServerClient) SendInstruction(instruction Instruction) error {
   switch instruction.Id {
     case "":
-      c.Server.ReplyInstruction(instruction, "")
+      message := string(instruction.Args[1])
+      c.Server.ReplyInstruction(NewMsgInstruction("Server", message), "")
     case "kill":
       user := c.Server.FindUser(string(instruction.Args[0]))
+      if (user == -1) {
+        errorMsg := fmt.Sprintf("User '%s' not found", string(instruction.Args[0]))
+        c.Server.SendEvent.Trigger(NewErrorInstruction(errorMsg))
+        break
+      }
       c.Server.DeleteUser(c.Server.UserArray[user])
-    // TODO: define the sendf feature
     case "end":
+      c.Server.SendEvent.Trigger(instruction)
       c.Close()
+    // TODO: define the sendf feature
   }
   return nil
+}
+
+// Listen to new user connections
+func (c *ServerClient) Listen() {
+  c.Server.Listen()
 }
 
 // Close the server and the client
@@ -35,5 +49,6 @@ func (c *ServerClient) Close() {
   for _, user := range c.Server.UserArray {
     c.Server.DeleteUser(user)
   }
+  c.Server.SendEvent.Clear()
   c.Server.Listener.Close()
 }

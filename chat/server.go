@@ -1,9 +1,9 @@
 package chat
 
 import (
-  "bufio"
-  "net"
-  "time"
+	"bufio"
+	"net"
+	"time"
 )
 
 // A struct for manage the chat hosting
@@ -16,12 +16,13 @@ type Server struct {
 // Validates if the nickname of a user
 // isn't a reserved word
 func ValidName(name string) bool {
-  reservedNames := map[string]int {
-    "Server": 1,
-    "log": 1,
-    "error": 1,
+  reservedNames := map[string]bool {
+    "Server": true,
+    "log": true,
+    "error": true,
+    "You": true,
   }
-  return (reservedNames[name] != 1)
+  return !reservedNames[name]
 }
 
 // Creates a server
@@ -57,9 +58,12 @@ func (s *Server) FindUser(name string) int {
 // Adds a user to the chat
 func (s *Server) AddUser(user User) {
   s.UserArray = append(s.UserArray, user)
+  s.ReplyInstruction(NewlogInstruction(user.Name + " joined to chat"), "")
   go user.Listen()
   msgListener := user.MessageEvent.On("", func(this EventListener, instruction Instruction) {
-    s.ReplyInstruction(NewMsgInstruction(user.Name, string(instruction.Args[1])), user.Name)
+    // BUG: Not parsed well
+    msg := string(instruction.Args[1])
+    s.ReplyInstruction(NewMsgInstruction(user.Name, msg), user.Name)
   })
   // TODO: implement the sendf
   user.MessageEvent.On("end", func(this EventListener, instruction Instruction) {
@@ -83,7 +87,6 @@ func (s *Server) DeleteUser(user User) {
 // Listen to new user connections
 func (s *Server) Listen() {
   for {
-    time.Sleep(500 * time.Millisecond)
     conn, _ := s.Listener.Accept()
     instruction_str, _ := bufio.NewReader(conn).ReadString('\n')
     instruction := BytesToInstruction([]byte(instruction_str)) 
@@ -104,7 +107,8 @@ func (s *Server) Listen() {
       continue
     }
     user := NewUser(userName, conn)
-    s.AddUser(user)
     user.SendInstruction(NewOkInstruction())
+    s.AddUser(user)
+    time.Sleep(500 * time.Millisecond)
   }
 }

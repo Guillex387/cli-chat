@@ -1,8 +1,9 @@
 package chat
 
 import (
-  "bufio"
-  "net"
+	"bufio"
+	"net"
+	"time"
 )
 
 // User (in server) struct representation
@@ -29,6 +30,7 @@ func (u *User) Listen() {
     instruction_str, _ := reader.ReadString('\n')
     instruction := BytesToInstruction([]byte(instruction_str))
     u.MessageEvent.Trigger(instruction)
+    time.Sleep(500 * time.Millisecond)
   }
 }
 
