@@ -11,6 +11,7 @@ import (
 type UserClient struct {
   Conection net.Conn
   ReceiveEvent Event
+  Listener Listener
 }
 
 // Opens connection to a host
@@ -27,7 +28,7 @@ func OpenConnection(ip string, port string, nickname string) (Client, error) {
   }
   responseInstruction := BytesToInstruction([]byte(response))
   if responseInstruction.Id == "ok" {
-    return &UserClient{Conection: conn, ReceiveEvent: NewEvent()}, nil
+    return &UserClient{Conection: conn, ReceiveEvent: NewEvent(), Listener: NewListener()}, nil
   }
   if responseInstruction.Id == "error" {
     fmt.Println(string(responseInstruction.Args[0]))
@@ -37,13 +38,23 @@ func OpenConnection(ip string, port string, nickname string) (Client, error) {
 
 // Executes a callback when receive/send a message
 func (c *UserClient) Listen() {
-  reader := bufio.NewReader(c.Conection)
-  for {
-    instructionStr, _ := reader.ReadString('\n')
-    instruction := BytesToInstruction([]byte(instructionStr))
-    c.ReceiveEvent.Trigger(instruction)
-    time.Sleep(500 * time.Millisecond)
-  }
+  c.Listener.Open(func(stop chan struct{}) {
+    c.ReceiveEvent.Trigger(NewlogInstruction("Opened the listener"))
+    for {
+      // Stop signal
+      select {
+        case <- stop:
+          return
+        default:
+          break
+      }
+
+      instructionStr, _ := bufio.NewReader(c.Conection).ReadString('\n')
+      instruction := BytesToInstruction([]byte(instructionStr))
+      c.ReceiveEvent.Trigger(instruction)
+      time.Sleep(500 * time.Millisecond)
+    }
+  })
 }
 
 // Getter of the event manager
@@ -57,13 +68,13 @@ func (c *UserClient) SendInstruction(instruction Instruction) error {
   if (writeError != nil) {
     return &ConnectionIOError{}
   }
+  c.ReceiveEvent.Trigger(instruction)
   return nil
 }
 
 // Closes the connection to host
 func (c *UserClient) Close() {
-  c.SendInstruction(NewEndInstruction())
-  c.Conection.Close()
-  c.Conection = nil
+  c.Listener.Close()
   c.ReceiveEvent.Clear()
+  c.Conection.Close()
 }

@@ -40,7 +40,7 @@ func main() {
   style := ui.NewStyle("#70EBFF", "#F00057", "#70EBFF")
   data := ui.NewModelData(style)
   client := GetClient(ctx)
-  go client.Listen()
+  client.Listen()
   program := tea.NewProgram(ui.InitModel(&client, &data))
   // Run the terminal ui
   program.Run()

@@ -50,5 +50,5 @@ func (c *ServerClient) Close() {
     c.Server.DeleteUser(user)
   }
   c.Server.SendEvent.Clear()
-  c.Server.Listener.Close()
+  c.Server.ConnListener.Close()
 }

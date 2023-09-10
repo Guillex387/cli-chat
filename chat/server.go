@@ -8,9 +8,10 @@ import (
 
 // A struct for manage the chat hosting
 type Server struct {
-  Listener net.Listener
+  ConnListener net.Listener
   UserArray []User
   SendEvent Event
+  Listener Listener
 }
 
 // Validates if the nickname of a user
@@ -27,11 +28,16 @@ func ValidName(name string) bool {
 
 // Creates a server
 func InitServer(port string) (Server, error) {
-  listener, err := net.Listen("tcp", ":" + port)
+  connListener, err := net.Listen("tcp", ":" + port)
   if err != nil {
-    return Server{nil, nil, NewEvent()}, OpenServerError{}
+    return Server{nil, nil, NewEvent(), NewListener()}, OpenServerError{}
   }
-  return Server {Listener: listener, UserArray: make([]User, 0)}, nil
+  return Server{
+    ConnListener: connListener,
+    UserArray: make([]User, 0),
+    SendEvent: NewEvent(),
+    Listener: NewListener(),
+  }, nil
 }
 
 // Send a instruction to all user (with an exception)
@@ -59,8 +65,8 @@ func (s *Server) FindUser(name string) int {
 func (s *Server) AddUser(user User) {
   s.UserArray = append(s.UserArray, user)
   s.ReplyInstruction(NewlogInstruction(user.Name + " joined to chat"), "")
-  go user.Listen()
-  msgListener := user.MessageEvent.On("", func(this EventListener, instruction Instruction) {
+  user.Listen()
+  user.MessageEvent.On("", func(this EventListener, instruction Instruction) {
     // BUG: Not parsed well
     msg := string(instruction.Args[1])
     s.ReplyInstruction(NewMsgInstruction(user.Name, msg), user.Name)
@@ -68,8 +74,6 @@ func (s *Server) AddUser(user User) {
   // TODO: implement the sendf
   user.MessageEvent.On("end", func(this EventListener, instruction Instruction) {
     s.DeleteUser(user)
-    user.MessageEvent.DeleteListener(msgListener)
-    user.MessageEvent.DeleteListener(this)
   })
 }
 
@@ -86,29 +90,49 @@ func (s *Server) DeleteUser(user User) {
 
 // Listen to new user connections
 func (s *Server) Listen() {
-  for {
-    conn, _ := s.Listener.Accept()
-    instruction_str, _ := bufio.NewReader(conn).ReadString('\n')
-    instruction := BytesToInstruction([]byte(instruction_str)) 
-    if instruction.Id != "open" {
-      conn.Write(NewErrorInstruction("Unknow instruction").Bytes())
-      conn.Close()
-      continue
+  s.Listener.Open(func(stop chan struct{}) {
+    for {
+      // Stop signal
+      select {
+        case <- stop:
+          return
+        default:
+          break
+      }
+
+      conn, err := s.ConnListener.Accept()
+      if err != nil {
+        continue
+      }
+      instruction_str, err := bufio.NewReader(conn).ReadString('\n')
+      if err != nil {
+        continue
+      }
+      instruction := BytesToInstruction([]byte(instruction_str)) 
+
+      if instruction.Id != "open" {
+        conn.Write(NewErrorInstruction("Unknow instruction").Bytes())
+        conn.Close()
+        continue
+      }
+
+      userName := string(instruction.Args[0])
+      if !ValidName(userName) {
+        conn.Write(NewErrorInstruction("The name is not valid").Bytes())
+        conn.Close()
+        continue
+      }
+
+      if s.FindUser(userName) != -1 {
+        conn.Write(NewErrorInstruction("The name already exists").Bytes())
+        conn.Close()
+        continue
+      }
+
+      user := NewUser(userName, conn)
+      user.SendInstruction(NewOkInstruction())
+      s.AddUser(user)
+      time.Sleep(500 * time.Millisecond)
     }
-    userName := string(instruction.Args[0])
-    if !ValidName(userName) {
-      conn.Write(NewErrorInstruction("The name is not valid").Bytes())
-      conn.Close()
-      continue
-    }
-    if s.FindUser(userName) != -1 {
-      conn.Write(NewErrorInstruction("The name already exists").Bytes())
-      conn.Close()
-      continue
-    }
-    user := NewUser(userName, conn)
-    user.SendInstruction(NewOkInstruction())
-    s.AddUser(user)
-    time.Sleep(500 * time.Millisecond)
-  }
+  })
 }
