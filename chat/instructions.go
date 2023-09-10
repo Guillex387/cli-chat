@@ -39,7 +39,7 @@ func (i Instruction) Bytes() []byte {
 
 // Parse a instruction buffer to a instruction
 func BytesToInstruction(buffer []byte) Instruction {
-  str_buffer := string(buffer)
+  str_buffer := RemoveLinebreaks(string(buffer))
   splits := strings.Split(str_buffer, " ")
   args := make([][]byte, 0)
   for _, split := range splits[1:] {
