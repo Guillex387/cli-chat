@@ -10,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+// Returns the correct client based on the mode (client or server)
 func GetClient(ctx args.CliArgs) chat.Client {
   if ctx.Mode == "client" {
     client, err := chat.OpenConnection(ctx.Ip, ctx.Port, ctx.Name)
@@ -28,6 +29,17 @@ func GetClient(ctx args.CliArgs) chat.Client {
   return client
 }
 
+// Make an initial log in the chat with some data
+func InitialLogs(ctx args.CliArgs, data *ui.ModelData) {
+  var log string
+  if ctx.Mode == "client" {
+    log = fmt.Sprintf("Joined to chat at %s:%s", ctx.Ip, ctx.Port)
+  } else {
+    log = fmt.Sprintf("Waiting connections at %s:%s", chat.GetLocalIp(), ctx.Port)
+  }
+  data.AddLog(log)
+}
+
 func main() {
   ctx := args.CliArgs{
     Mode: "",
@@ -41,6 +53,7 @@ func main() {
   data := ui.NewModelData(style)
   client := GetClient(ctx)
   client.Listen()
+  InitialLogs(ctx, &data)
   program := tea.NewProgram(ui.InitModel(&client, &data))
   // Run the terminal ui
   program.Run()
