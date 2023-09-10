@@ -1,9 +1,10 @@
 package chat
 
 import (
-  "bufio"
-  "net"
-  "time"
+	"bufio"
+	"fmt"
+	"net"
+	"time"
 )
 
 // Struct to represent the client of a user
@@ -27,6 +28,9 @@ func OpenConnection(ip string, port string, nickname string) (Client, error) {
   responseInstruction := BytesToInstruction([]byte(response))
   if responseInstruction.Id == "ok" {
     return &UserClient{Conection: conn, ReceiveEvent: NewEvent()}, nil
+  }
+  if responseInstruction.Id == "error" {
+    fmt.Println(string(responseInstruction.Args[0]))
   }
   return nil, OpenConnectionError{}
 }
