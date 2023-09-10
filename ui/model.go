@@ -34,20 +34,18 @@ func InitModel(client *chat.Client, data *ModelData) Model {
   textInput.CharLimit = 300
   textInput.Width = 100
   viewPort := viewport.New(ViewWidth, ViewHeight)
-  // TODO: Messages listener
-  // client.MessageListen(func(instruction chat.Instruction) {
-  //   switch instruction.Id {
-  //     case "":
-  //       data.AddMessage(string(instruction.Args[0]), string(instruction.Args[1]), style)
-  //     case "log":
-  //       data.AddLog(string(instruction.Args[0]), style)
-  //     case "error":
-  //       data.AddError(string(instruction.Args[0]), style)
-  //     // case "query": // TODO: implement the query in the ui
-  //     case "end":
-  //       tea.Quit()
-  //   }
-  // })
+
+  // Setup the client listeners
+  (*client).Event().On("", func(this chat.EventListener, instruction chat.Instruction) {
+    data.AddMessage(string(instruction.Args[0]), string(instruction.Args[1]))
+  })
+  (*client).Event().On("log", func(this chat.EventListener, instruction chat.Instruction) {
+    data.AddLog(string(instruction.Args[0]))
+  })
+  (*client).Event().On("error", func(this chat.EventListener, instruction chat.Instruction) {
+    data.AddError(string(instruction.Args[0]))
+  })
+
   return Model{
     Client: client,
     Data: data,
@@ -82,22 +80,32 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
       // Control switch
       switch msg.Type {
         case tea.KeyCtrlC, tea.KeyEsc:
+          (*m.Client).SendInstruction(chat.NewEndInstruction())
           return m, tea.Quit
+        
         case tea.KeyEnter:
           text := m.TextInput.Value()
+          // Parse the input to a instruction
           instruction, err := ParseInstruction(text).ToInstruction()
           if err != nil {
-            (*m.Client).SendInstruction(chat.NewErrorInstruction(err.Error()))
+            (*m.Data).AddError(err.Error())
           } else {
+            // Reply the instruction to the client
             (*m.Client).SendInstruction(instruction)
+            if instruction.Id == "end" {
+              return m, tea.Quit
+            }
           }
           m.TextInput.Reset()
           m.ViewPort.GotoBottom()
+        
         case tea.KeyUp:
           m.ViewPort.YPosition--
+        
         case tea.KeyDown:
           m.ViewPort.YPosition++
       }
+    
     case TickMsg:
       if !m.Data.RenderedMessages {
         m.Data.RenderedMessages = true
