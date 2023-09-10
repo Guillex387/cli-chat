@@ -17,7 +17,7 @@ type UserClient struct {
 // Opens connection to a host
 func OpenConnection(ip string, port string, nickname string) (Client, error) {
   conn, connectError := net.Dial("tcp4", ip + ":" + port)
-  if (connectError != nil) {
+  if connectError != nil {
     return nil, OpenConnectionError{}
   }
   openRequest := NewOpenInstruction(nickname) 
@@ -39,7 +39,7 @@ func OpenConnection(ip string, port string, nickname string) (Client, error) {
 // Executes a callback when receive/send a message
 func (c *UserClient) Listen() {
   c.Listener.Open(func(stop chan struct{}) {
-    c.ReceiveEvent.Trigger(NewlogInstruction("Opened the listener"))
+    reader := bufio.NewReader(c.Conection)
     for {
       // Stop signal
       select {
@@ -49,10 +49,13 @@ func (c *UserClient) Listen() {
           break
       }
 
-      instructionStr, _ := bufio.NewReader(c.Conection).ReadString('\n')
+      time.Sleep(500 * time.Millisecond)
+      instructionStr, err := reader.ReadString('\n')
+      if err != nil {
+        continue
+      }
       instruction := BytesToInstruction([]byte(instructionStr))
       c.ReceiveEvent.Trigger(instruction)
-      time.Sleep(500 * time.Millisecond)
     }
   })
 }
@@ -64,8 +67,11 @@ func (c *UserClient) Event() *Event {
 
 // Send a instruction to the host
 func (c *UserClient) SendInstruction(instruction Instruction) error {
+  if instruction.Id == "" {
+    instruction.Args[0] = []byte("You")
+  }
   _, writeError := c.Conection.Write(instruction.Bytes())
-  if (writeError != nil) {
+  if writeError != nil {
     return &ConnectionIOError{}
   }
   c.ReceiveEvent.Trigger(instruction)

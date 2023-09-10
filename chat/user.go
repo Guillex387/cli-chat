@@ -37,10 +37,13 @@ func (u *User) Listen() {
           break
       }
 
-      instruction_str, _ := reader.ReadString('\n')
+      time.Sleep(500 * time.Millisecond)
+      instruction_str, err := reader.ReadString('\n')
+      if err != nil {
+        continue
+      }
       instruction := BytesToInstruction([]byte(instruction_str))
       u.MessageEvent.Trigger(instruction)
-      time.Sleep(500 * time.Millisecond)
     }
   })
 }
