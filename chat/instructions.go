@@ -9,8 +9,6 @@ import (
 //
 // "" -> Send a normal message
 //
-// "query" -> Send a query to the user
-//
 // "ok" -> Send a ok response
 //
 // "error" -> Send an error (Host only)
@@ -35,6 +33,7 @@ func (i Instruction) Bytes() []byte {
   for _, data := range i.Args {
     result += " " + base64.StdEncoding.EncodeToString(data)
   }
+  result += "\n"
   return []byte(result)
 }
 
@@ -88,11 +87,6 @@ func NewMsgInstruction(userName string, msg string) Instruction {
 // Creates a ok instruction
 func NewOkInstruction() Instruction {
   return NewIntruction("ok")
-}
-
-// Creates a query instruction
-func NewQueryInstruction(query string) Instruction {
-  return NewIntruction("query", []byte(query))
 }
 
 // Creates a sendf instruction
