@@ -21,11 +21,11 @@ func (c *ServerClient) Event() *Event {
 func (c *ServerClient) SendInstruction(instruction Instruction) error {
   switch instruction.Id {
     case "":
-      message := string(instruction.Args[1])
-      c.Server.ReplyInstruction(NewMsgInstruction("Server", message), "")
+      instruction.Args[0] = []byte("Server")
+      c.Server.ReplyInstruction(instruction, "")
     case "kill":
       user := c.Server.FindUser(string(instruction.Args[0]))
-      if (user == -1) {
+      if user == -1 {
         errorMsg := fmt.Sprintf("User '%s' not found", string(instruction.Args[0]))
         c.Server.SendEvent.Trigger(NewErrorInstruction(errorMsg))
         break

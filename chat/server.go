@@ -67,9 +67,8 @@ func (s *Server) AddUser(user User) {
   s.ReplyInstruction(NewlogInstruction(user.Name + " joined to chat"), "")
   user.Listen()
   user.MessageEvent.On("", func(this EventListener, instruction Instruction) {
-    // BUG: Not parsed well
-    msg := string(instruction.Args[1])
-    s.ReplyInstruction(NewMsgInstruction(user.Name, msg), user.Name)
+    instruction.Args[0] = []byte(user.Name)
+    s.ReplyInstruction(instruction, user.Name)
   })
   // TODO: implement the sendf
   user.MessageEvent.On("end", func(this EventListener, instruction Instruction) {

@@ -12,7 +12,7 @@ import (
 
 // Viewport constants
 const ViewWidth = 70
-const ViewHeight = 40
+const ViewHeight = 25
 
 // Represent a event of type tick
 type TickMsg time.Time
@@ -91,7 +91,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
             (*m.Data).AddError(err.Error())
           } else {
             // Reply the instruction to the client
-            (*m.Client).SendInstruction(instruction)
+            err := (*m.Client).SendInstruction(instruction)
+            if err != nil {
+              (*m.Data).AddError(err.Error())
+            }
             if instruction.Id == "end" {
               return m, tea.Quit
             }
