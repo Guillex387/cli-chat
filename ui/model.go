@@ -2,6 +2,7 @@ package ui
 
 import (
 	chat "cli-chat/chat"
+  "cli-chat/ins"
 	"fmt"
 	"time"
 
@@ -36,13 +37,13 @@ func InitModel(client *chat.Client, data *ModelData) Model {
   viewPort := viewport.New(ViewWidth, ViewHeight)
 
   // Setup the client listeners
-  (*client).Event().On("", func(this chat.EventListener, instruction chat.Instruction) {
+  (*client).Event().On("", func(this chat.EventListener, instruction ins.Instruction) {
     data.AddMessage(string(instruction.Args[0]), string(instruction.Args[1]))
   })
-  (*client).Event().On("log", func(this chat.EventListener, instruction chat.Instruction) {
+  (*client).Event().On("log", func(this chat.EventListener, instruction ins.Instruction) {
     data.AddLog(string(instruction.Args[0]))
   })
-  (*client).Event().On("error", func(this chat.EventListener, instruction chat.Instruction) {
+  (*client).Event().On("error", func(this chat.EventListener, instruction ins.Instruction) {
     data.AddError(string(instruction.Args[0]))
   })
 
@@ -80,7 +81,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
       // Control switch
       switch msg.Type {
         case tea.KeyCtrlC, tea.KeyEsc:
-          (*m.Client).SendInstruction(chat.NewEndInstruction())
+          (*m.Client).SendInstruction(ins.NewEndInstruction())
           return m, tea.Quit
         
         case tea.KeyEnter:
@@ -112,7 +113,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // Executes when the user put a input instruction
 func (m Model) OnInstructionInput(input string) string {
   // Parse the input to a instruction
-  instruction, err := ParseInstruction(input).ToInstruction()
+  instruction, err := ins.ParseInstruction(input).ToInstruction()
   if err != nil {
     (*m.Data).AddError(err.Error())
   } else {

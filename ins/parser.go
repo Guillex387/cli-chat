@@ -1,6 +1,4 @@
-package ui
-
-import "cli-chat/chat"
+package ins
 
 // Parse a instruction from the
 // user input
@@ -64,21 +62,21 @@ func ParseInstruction(input string) InputInstruction {
 }
 
 // Parse a user input to a chat.Instruction
-func (i InputInstruction) ToInstruction() (chat.Instruction, error) {
+func (i InputInstruction) ToInstruction() (Instruction, error) {
   switch i.Id {
     case "":
       if len(i.Body) < 1 {
-        return chat.Instruction{}, SyntaxError{}
+        return Instruction{}, SyntaxError{}
       }
-      return chat.NewMsgInstruction("", i.Body[0]), nil
+      return NewMsgInstruction("", i.Body[0]), nil
     case "kill":
       if len(i.Body) < 1 {
-        return chat.Instruction{}, SyntaxError{}
+        return Instruction{}, SyntaxError{}
       }
-      return chat.NewKillInstruction(i.Body[0]), nil
+      return NewKillInstruction(i.Body[0]), nil
     case "end":
-      return chat.NewEndInstruction(), nil
+      return NewEndInstruction(), nil
     // case "sendf": // TODO: implement the sendf
   }
-  return chat.Instruction{}, SyntaxError{}
+  return Instruction{}, SyntaxError{}
 }

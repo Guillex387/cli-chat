@@ -2,6 +2,7 @@ package chat
 
 import (
 	"bufio"
+	"cli-chat/ins"
 	"fmt"
 	"net"
 	"time"
@@ -20,13 +21,13 @@ func OpenConnection(ip string, port string, nickname string) (Client, error) {
   if connectError != nil {
     return nil, OpenConnectionError{}
   }
-  openRequest := NewOpenInstruction(nickname) 
+  openRequest := ins.NewOpenInstruction(nickname) 
   conn.Write(openRequest.Bytes())
   response, writeError := bufio.NewReader(conn).ReadString('\n')
   if writeError != nil {
     return nil, ConnectionIOError{}
   }
-  responseInstruction := BytesToInstruction([]byte(response))
+  responseInstruction := ins.BytesToInstruction([]byte(response))
   if responseInstruction.Id == "ok" {
     return &UserClient{Conection: conn, ReceiveEvent: NewEvent(), Listener: NewListener()}, nil
   }
@@ -54,7 +55,7 @@ func (c *UserClient) Listen() {
       if err != nil {
         continue
       }
-      instruction := BytesToInstruction([]byte(instructionStr))
+      instruction := ins.BytesToInstruction([]byte(instructionStr))
       c.ReceiveEvent.Trigger(instruction)
     }
   })
@@ -66,7 +67,7 @@ func (c *UserClient) Event() *Event {
 }
 
 // Send a instruction to the host
-func (c *UserClient) SendInstruction(instruction Instruction) error {
+func (c *UserClient) SendInstruction(instruction ins.Instruction) error {
   if instruction.Id == "" {
     instruction.Args[0] = []byte("You")
   }

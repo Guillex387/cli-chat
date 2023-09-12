@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"net"
 	"time"
+  "cli-chat/ins"
 )
 
 // User (in server) struct representation
@@ -20,7 +21,7 @@ func NewUser(name string, connection net.Conn) User {
 }
 
 // Send a instruction to the user
-func (u *User) SendInstruction(instruction Instruction) {
+func (u *User) SendInstruction(instruction ins.Instruction) {
   u.Conection.Write(instruction.Bytes())
 }
 
@@ -42,7 +43,7 @@ func (u *User) Listen() {
       if err != nil {
         continue
       }
-      instruction := BytesToInstruction([]byte(instruction_str))
+      instruction := ins.BytesToInstruction([]byte(instruction_str))
       u.MessageEvent.Trigger(instruction)
     }
   })
@@ -56,8 +57,8 @@ func (u *User) Event() Event {
 // Send a close connection messages and close the connection
 func (u *User) Close() {
   u.Listener.Close()
-  u.SendInstruction(NewlogInstruction("The host kill you"))
-  u.SendInstruction(NewEndInstruction())
+  u.SendInstruction(ins.NewlogInstruction("The host kill you"))
+  u.SendInstruction(ins.NewEndInstruction())
   u.MessageEvent.Clear()
   u.Conection.Close()
 }

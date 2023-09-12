@@ -2,6 +2,7 @@ package chat
 
 import (
 	"bufio"
+	"cli-chat/ins"
 	"net"
 	"time"
 )
@@ -46,7 +47,7 @@ func InitServer(port string) (Server, error) {
 }
 
 // Send a instruction to all user (with an exception)
-func (s *Server) ReplyInstruction(instruction Instruction, exception string) {
+func (s *Server) ReplyInstruction(instruction ins.Instruction, exception string) {
   for _, user := range s.UserArray {
     if exception == "" || user.Name != exception {
       user.SendInstruction(instruction)
@@ -69,14 +70,14 @@ func (s *Server) FindUser(name string) int {
 // Adds a user to the chat
 func (s *Server) AddUser(user User) {
   s.UserArray = append(s.UserArray, user)
-  s.ReplyInstruction(NewlogInstruction(user.Name + " joined to chat"), "")
+  s.ReplyInstruction(ins.NewlogInstruction(user.Name + " joined to chat"), "")
   user.Listen()
-  user.MessageEvent.On("", func(this EventListener, instruction Instruction) {
+  user.MessageEvent.On("", func(this EventListener, instruction ins.Instruction) {
     instruction.Args[0] = []byte(user.Name)
     s.ReplyInstruction(instruction, user.Name)
   })
   // TODO: implement the sendf
-  user.MessageEvent.On("end", func(this EventListener, instruction Instruction) {
+  user.MessageEvent.On("end", func(this EventListener, instruction ins.Instruction) {
     s.DeleteUser(user)
   })
 }
@@ -89,14 +90,14 @@ func (s *Server) DeleteUser(user User) {
   }
   s.UserArray = append(s.UserArray[0:findIndex], s.UserArray[(findIndex + 1):]...)
   user.Close()
-  s.ReplyInstruction(NewlogInstruction(user.Name + " closed connection"), "")
+  s.ReplyInstruction(ins.NewlogInstruction(user.Name + " closed connection"), "")
 }
 
 // Remove all users from the chat
 func (s *Server) DeleteAllUsers() {
   for _, user := range s.UserArray {
     user.Close()
-    s.ReplyInstruction(NewlogInstruction(user.Name + " closed connection"), "")
+    s.ReplyInstruction(ins.NewlogInstruction(user.Name + " closed connection"), "")
   }
 }
 
@@ -120,29 +121,29 @@ func (s *Server) Listen() {
       if err != nil {
         continue
       }
-      instruction := BytesToInstruction([]byte(instruction_str)) 
+      instruction := ins.BytesToInstruction([]byte(instruction_str)) 
 
       if instruction.Id != "open" {
-        conn.Write(NewErrorInstruction("Unknow instruction").Bytes())
+        conn.Write(ins.NewErrorInstruction("Unknow instruction").Bytes())
         conn.Close()
         continue
       }
 
       userName := string(instruction.Args[0])
       if !ValidName(userName) {
-        conn.Write(NewErrorInstruction("The name is not valid").Bytes())
+        conn.Write(ins.NewErrorInstruction("The name is not valid").Bytes())
         conn.Close()
         continue
       }
 
       if s.FindUser(userName) != -1 {
-        conn.Write(NewErrorInstruction("The name already exists").Bytes())
+        conn.Write(ins.NewErrorInstruction("The name already exists").Bytes())
         conn.Close()
         continue
       }
 
       user := NewUser(userName, conn)
-      user.SendInstruction(NewOkInstruction())
+      user.SendInstruction(ins.NewOkInstruction())
       s.AddUser(user)
       time.Sleep(500 * time.Millisecond)
     }

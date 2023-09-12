@@ -1,6 +1,9 @@
 package chat
 
-import "fmt"
+import (
+	"cli-chat/ins"
+	"fmt"
+)
 
 // Struct that represent the server client
 type ServerClient struct {
@@ -18,7 +21,7 @@ func (c *ServerClient) Event() *Event {
 }
 
 // Send a instruction to server
-func (c *ServerClient) SendInstruction(instruction Instruction) error {
+func (c *ServerClient) SendInstruction(instruction ins.Instruction) error {
   switch instruction.Id {
     case "":
       instruction.Args[0] = []byte("Server")
@@ -27,7 +30,7 @@ func (c *ServerClient) SendInstruction(instruction Instruction) error {
       user := c.Server.FindUser(string(instruction.Args[0]))
       if user == -1 {
         errorMsg := fmt.Sprintf("User '%s' not found", string(instruction.Args[0]))
-        c.Server.SendEvent.Trigger(NewErrorInstruction(errorMsg))
+        c.Server.SendEvent.Trigger(ins.NewErrorInstruction(errorMsg))
         break
       }
       c.Server.DeleteUser(c.Server.UserArray[user])
