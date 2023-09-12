@@ -46,9 +46,8 @@ func (c *ServerClient) Listen() {
 
 // Close the server and the client
 func (c *ServerClient) Close() {
-  for _, user := range c.Server.UserArray {
-    c.Server.DeleteUser(user)
-  }
+  c.Server.DeleteAllUsers()
   c.Server.SendEvent.Clear()
   c.Server.ConnListener.Close()
+  c.Server.Listener.Close()
 }

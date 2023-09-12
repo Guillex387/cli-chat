@@ -17,13 +17,18 @@ type Server struct {
 // Validates if the nickname of a user
 // isn't a reserved word
 func ValidName(name string) bool {
-  reservedNames := map[string]bool {
-    "Server": true,
-    "log": true,
-    "error": true,
-    "You": true,
+  switch name {
+    case "Server":
+      return false
+    case "log":
+      return false
+    case "error":
+      return false
+    case "You":
+      return false
+    default:
+      return true
   }
-  return !reservedNames[name]
 }
 
 // Creates a server
@@ -85,6 +90,14 @@ func (s *Server) DeleteUser(user User) {
   s.UserArray = append(s.UserArray[0:findIndex], s.UserArray[(findIndex + 1):]...)
   user.Close()
   s.ReplyInstruction(NewlogInstruction(user.Name + " closed connection"), "")
+}
+
+// Remove all users from the chat
+func (s *Server) DeleteAllUsers() {
+  for _, user := range s.UserArray {
+    user.Close()
+    s.ReplyInstruction(NewlogInstruction(user.Name + " closed connection"), "")
+  }
 }
 
 // Listen to new user connections
