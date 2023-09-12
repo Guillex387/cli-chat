@@ -9,8 +9,6 @@ data transfer protocol, written in [go](https://go.dev/).
 
 - [ ] Write a guide of use.
 
-- [ ] Create a validation function for instructions to prevent errors
-
 ## License
 
 cli-chat Copyright (c) 2023 Guillex387. All rights reserved.
