@@ -35,6 +35,13 @@ func (m *Event) OnMultiple(instructionsIds []string, callback func(this EventLis
   m.Seed++
 }
 
+// Creates a listener of any type of instruction
+func (m *Event) OnAny(callback func(this EventListener, instruction ins.Instruction)) {
+  listener := EventListener{Id: m.Seed, InstructionId: make([]string, 0), Callback: callback}
+  m.Listeners = append(m.Listeners, listener)
+  m.Seed++
+}
+
 // Deletes a listener from the event
 func (m *Event) DeleteListener(listener EventListener) {
   for i, listenerElement := range m.Listeners {
@@ -47,6 +54,12 @@ func (m *Event) DeleteListener(listener EventListener) {
 // Activate the event and executes all the listeners 
 func (m *Event) Trigger(instruction ins.Instruction) {
   for _, listener := range m.Listeners {
+    // An emty array of id is like a "*" expression
+    if len(listener.InstructionId) == 0 {
+      go listener.Callback(listener, instruction)
+      continue
+    }
+
     for _, id := range listener.InstructionId {
       if instruction.Id == id {
         go listener.Callback(listener, instruction)

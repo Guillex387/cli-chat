@@ -56,9 +56,9 @@ func (u *User) Event() Event {
 
 // Send a close connection messages and close the connection
 func (u *User) Close() {
-  u.Listener.Close()
-  u.SendInstruction(ins.NewlogInstruction("The host kill you"))
+  u.SendInstruction(ins.NewLogInstruction("The host kill you"))
   u.SendInstruction(ins.NewEndInstruction())
   u.MessageEvent.Clear()
   u.Conection.Close()
+  u.Listener.Close()
 }

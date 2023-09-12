@@ -1,7 +1,7 @@
 package ins
 
 // Creates a log instruction
-func NewlogInstruction(log string) Instruction {
+func NewLogInstruction(log string) Instruction {
   return NewIntruction("log", []byte(log))
 }
 

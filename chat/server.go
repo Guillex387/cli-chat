@@ -70,15 +70,10 @@ func (s *Server) FindUser(name string) int {
 // Adds a user to the chat
 func (s *Server) AddUser(user User) {
   s.UserArray = append(s.UserArray, user)
-  s.ReplyInstruction(ins.NewlogInstruction(user.Name + " joined to chat"), "")
+  s.ReplyInstruction(ins.NewLogInstruction(user.Name + " joined to chat"), "")
   user.Listen()
-  user.MessageEvent.On("", func(this EventListener, instruction ins.Instruction) {
-    instruction.Args[0] = []byte(user.Name)
-    s.ReplyInstruction(instruction, user.Name)
-  })
-  // TODO: implement the sendf
-  user.MessageEvent.On("end", func(this EventListener, instruction ins.Instruction) {
-    s.DeleteUser(user)
+  user.MessageEvent.OnAny(func(this EventListener, instruction ins.Instruction) {
+    s.ManageUserInstruction(&user, instruction)
   })
 }
 
@@ -90,14 +85,14 @@ func (s *Server) DeleteUser(user User) {
   }
   s.UserArray = append(s.UserArray[0:findIndex], s.UserArray[(findIndex + 1):]...)
   user.Close()
-  s.ReplyInstruction(ins.NewlogInstruction(user.Name + " closed connection"), "")
+  s.ReplyInstruction(ins.NewLogInstruction(user.Name + " closed connection"), "")
 }
 
 // Remove all users from the chat
 func (s *Server) DeleteAllUsers() {
   for _, user := range s.UserArray {
     user.Close()
-    s.ReplyInstruction(ins.NewlogInstruction(user.Name + " closed connection"), "")
+    s.ReplyInstruction(ins.NewLogInstruction(user.Name + " closed connection"), "")
   }
 }
 
@@ -148,4 +143,12 @@ func (s *Server) Listen() {
       time.Sleep(500 * time.Millisecond)
     }
   })
+}
+
+// Close the server
+func (s *Server) Close() {
+  s.DeleteAllUsers()
+  s.SendEvent.Clear()
+  s.ConnListener.Close()
+  s.Listener.Close()
 }
