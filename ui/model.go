@@ -84,20 +84,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
           return m, tea.Quit
         
         case tea.KeyEnter:
-          text := m.TextInput.Value()
-          // Parse the input to a instruction
-          instruction, err := ParseInstruction(text).ToInstruction()
-          if err != nil {
-            (*m.Data).AddError(err.Error())
-          } else {
-            // Reply the instruction to the client
-            err := (*m.Client).SendInstruction(instruction)
-            if err != nil {
-              (*m.Data).AddError(err.Error())
-            }
-            if instruction.Id == "end" {
-              return m, tea.Quit
-            }
+          input := m.TextInput.Value()
+          if m.OnInstructionInput(input) == "end" {
+            return m, tea.Quit
           }
           m.TextInput.Reset()
           m.ViewPort.GotoBottom()
@@ -118,6 +107,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
       }
   }
   return m, tea.Batch(textInputCmd, viewPortCmd, m.CheckMessages())
+}
+
+// Executes when the user put a input instruction
+func (m Model) OnInstructionInput(input string) string {
+  // Parse the input to a instruction
+  instruction, err := ParseInstruction(input).ToInstruction()
+  if err != nil {
+    (*m.Data).AddError(err.Error())
+  } else {
+    // Reply the instruction to the client
+    err := (*m.Client).SendInstruction(instruction)
+    if err != nil {
+      (*m.Data).AddError(err.Error())
+    }
+  }
+  return instruction.Id
 }
 
 // Render the model
