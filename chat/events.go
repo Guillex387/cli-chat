@@ -1,10 +1,12 @@
 package chat
 
+import "cli-chat/ins"
+
 // Represent a listener for a event
 type EventListener struct {
   Id int
-  InstructionId string
-  Callback func(this EventListener, instruction Instruction)
+  InstructionId []string
+  Callback func(this EventListener, instruction ins.Instruction)
 }
 
 // Represent a event 
@@ -18,12 +20,19 @@ func NewEvent() Event {
   return Event {0, make([]EventListener, 0)}
 }
 
-// Creates a listeners of a certain instruction
-func (m *Event) On(instructionId string, callback func(this EventListener, instruction Instruction)) EventListener {
-  listener := EventListener{Id: m.Seed, InstructionId: instructionId, Callback: callback}
+// Creates a listener of a certain instruction
+func (m *Event) On(instructionId string, callback func(this EventListener, instruction ins.Instruction)) EventListener {
+  listener := EventListener{Id: m.Seed, InstructionId: []string{instructionId}, Callback: callback}
   m.Listeners = append(m.Listeners, listener)
   m.Seed++
   return listener
+}
+
+// Creates a listener of a multiple instructions types
+func (m *Event) OnMultiple(instructionsIds []string, callback func(this EventListener, instruction ins.Instruction)) {
+  listener := EventListener{Id: m.Seed, InstructionId: instructionsIds, Callback: callback}
+  m.Listeners = append(m.Listeners, listener)
+  m.Seed++
 }
 
 // Deletes a listener from the event
@@ -36,10 +45,13 @@ func (m *Event) DeleteListener(listener EventListener) {
 }
 
 // Activate the event and executes all the listeners 
-func (m *Event) Trigger(instruction Instruction) {
+func (m *Event) Trigger(instruction ins.Instruction) {
   for _, listener := range m.Listeners {
-    if instruction.Id == listener.InstructionId {
-      go listener.Callback(listener, instruction)
+    for _, id := range listener.InstructionId {
+      if instruction.Id == id {
+        go listener.Callback(listener, instruction)
+        break
+      }
     }
   }
 }
