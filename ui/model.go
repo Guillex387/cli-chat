@@ -86,6 +86,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         
         case tea.KeyEnter:
           input := m.TextInput.Value()
+          if input == "" {
+            break
+          }
           if m.OnInstructionInput(input) == "end" {
             return m, tea.Quit
           }
@@ -111,6 +114,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // Executes when the user put a input instruction
+// and returns the id
 func (m Model) OnInstructionInput(input string) string {
   // Parse the input to a instruction
   instruction, err := ins.ParseInstruction(input).ToInstruction()
