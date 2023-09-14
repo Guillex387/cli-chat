@@ -30,6 +30,5 @@
 *.out
 *.app
 
-go.sum
 build/
 modules/
