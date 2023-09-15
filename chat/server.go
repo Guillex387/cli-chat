@@ -119,7 +119,7 @@ func (s *Server) Listen() {
       instruction := ins.BytesToInstruction([]byte(instruction_str)) 
 
       if instruction.Id != "open" {
-        conn.Write(ins.NewErrorInstruction("Unknow instruction").Bytes())
+        conn.Write(ins.NewErrorInstruction("Unknown instruction").Bytes())
         conn.Close()
         continue
       }

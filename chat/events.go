@@ -54,7 +54,7 @@ func (m *Event) DeleteListener(listener EventListener) {
 // Activate the event and executes all the listeners 
 func (m *Event) Trigger(instruction ins.Instruction) {
   for _, listener := range m.Listeners {
-    // An emty array of id is like a "*" expression
+    // An empty array of id is like a "*" expression
     if len(listener.InstructionId) == 0 {
       go listener.Callback(listener, instruction)
       continue

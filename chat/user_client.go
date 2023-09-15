@@ -10,7 +10,7 @@ import (
 
 // Struct to represent the client of a user
 type UserClient struct {
-  Conection net.Conn
+  Connection net.Conn
   ReceiveEvent Event
   Listener Listener
 }
@@ -29,7 +29,7 @@ func OpenConnection(ip string, port string, nickname string) (Client, error) {
   }
   responseInstruction := ins.BytesToInstruction([]byte(response))
   if responseInstruction.Id == "ok" {
-    return &UserClient{Conection: conn, ReceiveEvent: NewEvent(), Listener: NewListener()}, nil
+    return &UserClient{Connection: conn, ReceiveEvent: NewEvent(), Listener: NewListener()}, nil
   }
   if responseInstruction.Id == "error" {
     fmt.Println(string(responseInstruction.Args[0]))
@@ -40,7 +40,7 @@ func OpenConnection(ip string, port string, nickname string) (Client, error) {
 // Executes a callback when receive/send a message
 func (c *UserClient) Listen() {
   c.Listener.Open(func(stop chan struct{}) {
-    reader := bufio.NewReader(c.Conection)
+    reader := bufio.NewReader(c.Connection)
     for {
       // Stop signal
       select {
@@ -71,7 +71,7 @@ func (c *UserClient) SendInstruction(instruction ins.Instruction) error {
   if instruction.Id == "" {
     instruction.Args[0] = []byte("You")
   }
-  _, writeError := c.Conection.Write(instruction.Bytes())
+  _, writeError := c.Connection.Write(instruction.Bytes())
   if writeError != nil {
     return &ConnectionIOError{}
   }
@@ -83,5 +83,5 @@ func (c *UserClient) SendInstruction(instruction ins.Instruction) error {
 func (c *UserClient) Close() {
   c.Listener.Close()
   c.ReceiveEvent.Clear()
-  c.Conection.Close()
+  c.Connection.Close()
 }

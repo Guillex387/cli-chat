@@ -10,25 +10,25 @@ import (
 // User (in server) struct representation
 type User struct {
   Name string
-  Conection net.Conn
+  Connection net.Conn
   MessageEvent Event
   Listener Listener
 }
 
 // Creates a new user
 func NewUser(name string, connection net.Conn) User {
-  return User{Name: name, Conection: connection, MessageEvent: NewEvent(), Listener: NewListener()}
+  return User{Name: name, Connection: connection, MessageEvent: NewEvent(), Listener: NewListener()}
 }
 
 // Send a instruction to the user
 func (u *User) SendInstruction(instruction ins.Instruction) {
-  u.Conection.Write(instruction.Bytes())
+  u.Connection.Write(instruction.Bytes())
 }
 
 // Listen the incoming message from the user connection
 func (u *User) Listen() {
   u.Listener.Open(func(stop chan struct{}) {
-    reader := bufio.NewReader(u.Conection)
+    reader := bufio.NewReader(u.Connection)
     for {
       // Stop signal
       select {
@@ -59,6 +59,6 @@ func (u *User) Close() {
   u.SendInstruction(ins.NewLogInstruction("The host kill you"))
   u.SendInstruction(ins.NewEndInstruction())
   u.MessageEvent.Clear()
-  u.Conection.Close()
+  u.Connection.Close()
   u.Listener.Close()
 }

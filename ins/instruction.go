@@ -39,17 +39,17 @@ func (i Instruction) Bytes() []byte {
 
 // Parse a instruction buffer to a instruction
 func BytesToInstruction(buffer []byte) Instruction {
-  str_buffer := RemoveLinebreaks(string(buffer))
+  str_buffer := RemoveLineBreaks(string(buffer))
   splits := strings.Split(str_buffer, " ")
   args := make([][]byte, 0)
   for _, split := range splits[1:] {
     arg, _ := base64.StdEncoding.DecodeString(split)
     args = append(args, arg)
   }
-  return NewIntruction(splits[0], args...)
+  return NewInstruction(splits[0], args...)
 }
 
 // The constructor of Instruction
-func NewIntruction(id string, args ...[]byte) Instruction {
+func NewInstruction(id string, args ...[]byte) Instruction {
   return Instruction {Id: id, Args: args}
 }

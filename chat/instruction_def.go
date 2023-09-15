@@ -15,7 +15,7 @@ func (s *Server) ManageServerInstruction(instruction ins.Instruction) {
     case "end":
       s.ManageEnd(instruction)
     default:
-      error := ins.NewErrorInstruction("Unknow instruction")
+      error := ins.NewErrorInstruction("Unknown instruction")
       s.SendEvent.Trigger(error)
   }
 }
@@ -28,7 +28,7 @@ func (s *Server) ManageUserInstruction(user *User, instruction ins.Instruction) 
     case "end":
       s.ManageUserEnd(user)
     default:
-      error := ins.NewErrorInstruction("Unknow instruction")
+      error := ins.NewErrorInstruction("Unknown instruction")
       user.SendInstruction(error)
   }
 }
