@@ -8,22 +8,20 @@ data transfer protocol, written in [go](https://go.dev/).
 You can build it from source with the [go](https://go.dev/) compiler,
 or you can check the binaries in the [last release](https://github.com/Guillex387/cli-chat/releases/latest).
 
-> Note: In linux, if do you have any error log with "libc" word
->
-> ```bash
-> # Note: In linux, if do you have any
-> # error log with libc word, check the command below
->
-> sudo apt install glibc-source
-> # If you are in a distro not based on debian search
-> # for installing the libc in your distro
-> ```
+```sh
+# Note: In linux, if do you have any
+# error log with libc word, check the command below
+
+sudo apt install glibc-source
+# If you are in a distro not based on debian search
+# for installing the libc in your distro
+```
 
 ## Usage
 
 To open a connection view the help message.
 
-```bash
+```sh
 $ cli-chat -help
 
 Terminal based chat with multiple functionality which has its own data transfer protocol.
