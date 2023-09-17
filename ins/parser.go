@@ -76,7 +76,15 @@ func (i InputInstruction) ToInstruction() (Instruction, error) {
       return NewKillInstruction(i.Body[0]), nil
     case "end":
       return NewEndInstruction(), nil
-    // case "sendf": // TODO: implement the sendf
+    case "users":
+      return NewUsersInstruction(), nil
+    case "cmd":
+      if len(i.Body) < 1 {
+        return Instruction{}, SyntaxError{}
+      }
+      return NewCmdInstruction(i.Body[0], i.Body[1:]...), nil
+    case "clear":
+      return NewClearInstruction(), nil
   }
   return Instruction{}, SyntaxError{}
 }

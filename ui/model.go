@@ -46,6 +46,9 @@ func InitModel(client *chat.Client, data *ModelData) Model {
   (*client).Event().On("error", func(this chat.EventListener, instruction ins.Instruction) {
     data.AddError(string(instruction.Args[0]))
   })
+  (*client).Event().On("clear", func(this chat.EventListener, instruction ins.Instruction) {
+    data.Clear()
+  })
 
   return Model{
     Client: client,
@@ -122,10 +125,7 @@ func (m Model) OnInstructionInput(input string) string {
     (*m.Data).AddError(err.Error())
   } else {
     // Reply the instruction to the client
-    err := (*m.Client).SendInstruction(instruction)
-    if err != nil {
-      (*m.Data).AddError(err.Error())
-    }
+    (*m.Client).SendInstruction(instruction)
   }
   return instruction.Id
 }

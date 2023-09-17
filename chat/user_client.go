@@ -67,16 +67,8 @@ func (c *UserClient) Event() *Event {
 }
 
 // Send a instruction to the host
-func (c *UserClient) SendInstruction(instruction ins.Instruction) error {
-  if instruction.Id == "" {
-    instruction.Args[0] = []byte("You")
-  }
-  _, writeError := c.Connection.Write(instruction.Bytes())
-  if writeError != nil {
-    return &ConnectionIOError{}
-  }
-  c.ReceiveEvent.Trigger(instruction)
-  return nil
+func (c *UserClient) SendInstruction(instruction ins.Instruction) {
+  c.ManageInstruction(instruction)
 }
 
 // Closes the connection to host

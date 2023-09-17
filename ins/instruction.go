@@ -22,6 +22,12 @@ import (
 // "kill" -> kill a user (Host only)
 //
 // "log" -> Send a server log (Host only)
+//
+// "users" -> Send a request for get the users in the chat
+//
+// "cmd" -> executes a command and send the output to the chat
+//
+// "clear" -> free the message buffer
 type Instruction struct {
   Id string
   Args [][]byte

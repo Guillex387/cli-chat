@@ -40,3 +40,9 @@ func (d *ModelData) AddLog(log string) {
   d.Messages += buffer
   d.RenderedMessages = false
 }
+
+// Clear the message buffer
+func (d *ModelData) Clear() {
+  d.Messages = ""
+  d.RenderedMessages = false
+}

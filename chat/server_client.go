@@ -18,9 +18,8 @@ func (c *ServerClient) Event() *Event {
 }
 
 // Send a instruction to server
-func (c *ServerClient) SendInstruction(instruction ins.Instruction) error {
+func (c *ServerClient) SendInstruction(instruction ins.Instruction) {
   c.Server.ManageServerInstruction(instruction)
-  return nil
 }
 
 // Listen to new user connections

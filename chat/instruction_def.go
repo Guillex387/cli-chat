@@ -3,6 +3,8 @@ package chat
 import (
 	"cli-chat/ins"
 	"fmt"
+	"os/exec"
+	"strings"
 )
 
 // Manage the server instructions behavior
@@ -13,7 +15,13 @@ func (s *Server) ManageServerInstruction(instruction ins.Instruction) {
     case "kill":
       s.ManageKill(instruction)
     case "end":
-      s.ManageEnd(instruction)
+      s.ManageEnd()
+    case "users":
+      s.ManageUsers()
+    case "cmd":
+      s.ManageCmd(instruction)
+    case "clear":
+      s.SendEvent.Trigger(instruction)
     default:
       error := ins.NewErrorInstruction("Unknown instruction")
       s.SendEvent.Trigger(error)
@@ -27,6 +35,8 @@ func (s *Server) ManageUserInstruction(user *User, instruction ins.Instruction) 
       s.ManageUserMsg(user, instruction)
     case "end":
       s.ManageUserEnd(user)
+    case "users":
+      s.ManageUserUsers(user)
     default:
       error := ins.NewErrorInstruction("Unknown instruction")
       user.SendInstruction(error)
@@ -53,9 +63,37 @@ func (s *Server) ManageKill(instruction ins.Instruction) {
 }
 
 // Manage server end instruction
-func (s *Server) ManageEnd(instruction ins.Instruction) {
-  s.SendEvent.Trigger(instruction)
+func (s *Server) ManageEnd() {
+  s.SendEvent.Trigger(ins.NewEndInstruction())
   s.Close()
+}
+
+// Manage server users instruction
+func (s *Server) ManageUsers() {
+  users := "User list:"
+  for _, user := range s.UserArray {
+    users += " " + user.Name
+  }
+  s.SendEvent.Trigger(ins.NewLogInstruction(users))
+}
+
+// Manage server cmd instruction
+func (s *Server) ManageCmd(instruction ins.Instruction) {
+  command_name := string(instruction.Args[0])
+  str_arg := make([]string, 0)
+  for _, arg := range instruction.Args[1:] {
+    str_arg = append(str_arg, string(arg))
+  }
+
+  cmd := exec.Command(command_name, str_arg...)
+  output, err := cmd.Output()
+
+  if err != nil {
+    s.SendEvent.Trigger(ins.NewErrorInstruction(err.Error()))
+    return
+  }
+  msg := command_name + " " + strings.Join(str_arg, " ") + "\n" + string(output)
+  s.ManageMsg(ins.NewMsgInstruction("", msg))
 }
 
 // User instructions
@@ -69,4 +107,13 @@ func (s *Server) ManageUserMsg(user *User, instruction ins.Instruction) {
 // Manage user end instruction
 func (s *Server) ManageUserEnd(user *User) {
   s.DeleteUser(*user)
+}
+
+// Manage user users instruction
+func (s *Server) ManageUserUsers(user *User) {
+  users := "User list:"
+  for _, user := range s.UserArray {
+    users += " " + user.Name
+  }
+  user.SendInstruction(ins.NewLogInstruction(users))
 }

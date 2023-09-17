@@ -34,3 +34,23 @@ func NewMsgInstruction(userName string, msg string) Instruction {
 func NewOkInstruction() Instruction {
   return NewInstruction("ok")
 }
+
+// Creates a users instruction
+func NewUsersInstruction() Instruction {
+  return NewInstruction("users")
+}
+
+// Creates a cmd instruction
+func NewCmdInstruction(name string, args ...string) Instruction {
+  bin_args := make([][]byte, 0)
+  bin_args = append(bin_args, []byte(name))
+  for _, arg := range args {
+    bin_args = append(bin_args, []byte(arg))
+  }
+  return NewInstruction("cmd", bin_args...)
+}
+
+// Creates a clear instruction
+func NewClearInstruction() Instruction {
+  return NewInstruction("clear")
+}
