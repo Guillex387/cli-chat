@@ -13,6 +13,7 @@ type Server struct {
   UserArray []User
   SendEvent Event
   Listener Listener
+  refreshTime time.Duration
 }
 
 // Validates if the nickname of a user
@@ -33,10 +34,10 @@ func ValidName(name string) bool {
 }
 
 // Creates a server
-func InitServer(port string) (Server, error) {
+func InitServer(port string, refreshTime time.Duration) (Server, error) {
   connListener, err := net.Listen("tcp", ":" + port)
   if err != nil {
-    return Server{nil, nil, NewEvent(), NewListener()}, OpenServerError{}
+    return Server{nil, nil, NewEvent(), NewListener(), refreshTime}, OpenServerError{}
   }
   return Server{
     ConnListener: connListener,
@@ -137,10 +138,10 @@ func (s *Server) Listen() {
         continue
       }
 
-      user := NewUser(userName, conn)
+      user := NewUser(userName, conn, s.refreshTime)
       user.SendInstruction(ins.NewOkInstruction())
       s.AddUser(user)
-      time.Sleep(500 * time.Millisecond)
+      time.Sleep(s.refreshTime)
     }
   })
 }

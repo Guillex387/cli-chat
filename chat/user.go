@@ -13,11 +13,12 @@ type User struct {
   Connection net.Conn
   MessageEvent Event
   Listener Listener
+  refreshTime time.Duration
 }
 
 // Creates a new user
-func NewUser(name string, connection net.Conn) User {
-  return User{Name: name, Connection: connection, MessageEvent: NewEvent(), Listener: NewListener()}
+func NewUser(name string, connection net.Conn, refreshTime time.Duration) User {
+  return User{name, connection, NewEvent(), NewListener(), refreshTime}
 }
 
 // Send a instruction to the user
@@ -38,7 +39,7 @@ func (u *User) Listen() {
           break
       }
 
-      time.Sleep(500 * time.Millisecond)
+      time.Sleep(u.refreshTime)
       instructionStr, err := reader.ReadString('\n')
       if err != nil {
         continue

@@ -13,23 +13,26 @@ type UserClient struct {
   Connection net.Conn
   ReceiveEvent Event
   Listener Listener
+  refreshTime time.Duration
 }
 
 // Opens connection to a host
-func OpenConnection(ip string, port string, nickname string) (Client, error) {
+func OpenConnection(ip string, port string, nickname string, refreshTime time.Duration) (Client, error) {
   conn, connectError := net.Dial("tcp4", ip + ":" + port)
   if connectError != nil {
     return nil, OpenConnectionError{}
   }
+  // Send a open request to the chat
   openRequest := ins.NewOpenInstruction(nickname) 
   conn.Write(openRequest.Bytes())
   response, writeError := bufio.NewReader(conn).ReadString('\n')
   if writeError != nil {
     return nil, ConnectionIOError{}
   }
+  // Parse the response
   responseInstruction := ins.BytesToInstruction([]byte(response))
   if responseInstruction.Id == "ok" {
-    return &UserClient{Connection: conn, ReceiveEvent: NewEvent(), Listener: NewListener()}, nil
+    return &UserClient{conn, NewEvent(), NewListener(), refreshTime}, nil
   }
   if responseInstruction.Id == "error" {
     fmt.Println(string(responseInstruction.Args[0]))
@@ -50,7 +53,7 @@ func (c *UserClient) Listen() {
           break
       }
 
-      time.Sleep(500 * time.Millisecond)
+      time.Sleep(c.refreshTime)
       instructionStr, err := reader.ReadString('\n')
       if err != nil {
         continue

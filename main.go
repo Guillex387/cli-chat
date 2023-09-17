@@ -13,14 +13,14 @@ import (
 // Returns the correct client based on the mode (client or server)
 func GetClient(ctx args.CliArgs) chat.Client {
   if ctx.Mode == "client" {
-    client, err := chat.OpenConnection(ctx.Ip, ctx.Port, ctx.Name)
+    client, err := chat.OpenConnection(ctx.Ip, ctx.Port, ctx.Name, ctx.Refresh)
     if err != nil {
       fmt.Println(err.Error())
       os.Exit(1)
     }
     return client
   }
-  server, err := chat.InitServer(ctx.Port)
+  server, err := chat.InitServer(ctx.Port, ctx.Refresh)
   if err != nil {
     fmt.Println(err.Error())
     os.Exit(1)
@@ -46,6 +46,7 @@ func main() {
     Ip: "",
     Port: "",
     Name: "",
+    Refresh: 0,
   }
   args.InitArgs(&ctx)
   args.Parse()

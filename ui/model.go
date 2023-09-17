@@ -15,6 +15,9 @@ import (
 const ViewWidth = 70
 const ViewHeight = 25
 
+// Time interval to check the new data
+const REFRESH_TIME = 50 * time.Millisecond
+
 // Represent a event of type tick
 type TickMsg time.Time
 
@@ -65,7 +68,7 @@ func (m Model) Init() tea.Cmd {
 
 // Check if are not rendered messages
 func (m Model) CheckMessages() tea.Cmd {
-  return tea.Tick(time.Millisecond * 50, func(t time.Time) tea.Msg {
+  return tea.Tick(REFRESH_TIME, func(t time.Time) tea.Msg {
     return TickMsg(t)
   })
 }

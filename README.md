@@ -35,6 +35,8 @@ Options:
     	The display name in the chat (client only) (default "unknow")
   -port string
     	The port to listen or connect to a server (default "8000")
+  -refresh int
+    	The time interval to read connections (in milliseconds) (default 400)
 ```
 
 ### Commands
