@@ -3,8 +3,6 @@ package chat
 import (
 	"cli-chat/ins"
 	"fmt"
-	"os/exec"
-	"strings"
 )
 
 // Manage the server instructions behavior
@@ -79,21 +77,12 @@ func (s *Server) ManageUsers() {
 
 // Manage server cmd instruction
 func (s *Server) ManageCmd(instruction ins.Instruction) {
-  commandName := string(instruction.Args[0])
-  strArg := make([]string, 0)
-  for _, arg := range instruction.Args[1:] {
-    strArg = append(strArg, string(arg))
-  }
-
-  cmd := exec.Command(commandName, strArg...)
-  output, err := cmd.Output()
-
-  if err != nil {
-    s.SendEvent.Trigger(ins.NewErrorInstruction(err.Error()))
+  outInstruction := ExecuteCmd(instruction)
+  if outInstruction.Id == "error" {
+    s.SendEvent.Trigger(outInstruction)
     return
   }
-  msg := commandName + " " + strings.Join(strArg, " ") + "\n" + string(output)
-  s.ManageMsg(ins.NewMsgInstruction("", msg))
+  s.ManageMsg(outInstruction)
 }
 
 // User instructions

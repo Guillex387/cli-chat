@@ -1,10 +1,6 @@
 package chat
 
-import (
-	"cli-chat/ins"
-	"os/exec"
-	"strings"
-)
+import "cli-chat/ins"
 
 // Manage the client instructions behavior
 func (c *UserClient) ManageInstruction(instruction ins.Instruction) {
@@ -29,19 +25,10 @@ func (c *UserClient) ManageInstruction(instruction ins.Instruction) {
 
 // Manage cmd instruction
 func (c *UserClient) ManageCmd(instruction ins.Instruction) {
-  commandName := string(instruction.Args[0])
-  strArg := make([]string, 0)
-  for _, arg := range instruction.Args[1:] {
-    strArg = append(strArg, string(arg))
-  }
-
-  cmd := exec.Command(commandName, strArg...)
-  output, err := cmd.Output()
-
-  if err != nil {
-    c.ReceiveEvent.Trigger(ins.NewErrorInstruction(err.Error()))
+  outInstruction := ExecuteCmd(instruction)
+  if outInstruction.Id == "error" {
+    c.ReceiveEvent.Trigger(outInstruction)
     return
   }
-  msg := commandName + " " + strings.Join(strArg, " ") + "\n" + string(output)
-  c.SendInstruction(ins.NewMsgInstruction("", msg))
+  c.SendInstruction(outInstruction)
 }

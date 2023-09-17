@@ -1,6 +1,11 @@
 package chat
 
-import "net"
+import (
+	"cli-chat/ins"
+	"net"
+	"os/exec"
+	"strings"
+)
 
 // Returns the local ip string
 func GetLocalIp() string {
@@ -11,4 +16,24 @@ func GetLocalIp() string {
   defer conn.Close()
   localAddr := conn.LocalAddr().(*net.UDPAddr)
   return localAddr.IP.String()
+}
+
+func ExecuteCmd(cmd ins.Instruction) ins.Instruction {
+  commandName := string(cmd.Args[0])
+  strArg := make([]string, 0)
+  for _, arg := range cmd.Args[1:] {
+    strArg = append(strArg, string(arg))
+  }
+
+  process := exec.Command(commandName, strArg...)
+  output, err := process.CombinedOutput()
+
+  if err != nil {
+    errorMsg := string(output) + err.Error()
+    return ins.NewErrorInstruction(errorMsg)
+  }
+  
+  cmdStr := commandName + " " + strings.Join(strArg, " ")
+  msg := cmdStr + "\n" + string(output)
+  return ins.NewMsgInstruction("", msg)
 }
