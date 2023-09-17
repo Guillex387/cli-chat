@@ -12,8 +12,8 @@ import (
 )
 
 // Viewport constants
-const ViewWidth = 70
-const ViewHeight = 25
+const VIEW_WIDTH = 70
+const VIEW_HEIGHT = 25
 
 // Time interval to check the new data
 const REFRESH_TIME = 50 * time.Millisecond
@@ -35,9 +35,9 @@ func InitModel(client *chat.Client, data *ModelData) Model {
   textInput := textinput.New()
   textInput.Placeholder = "Write a message/command..."
   textInput.Focus()
-  textInput.CharLimit = 300
-  textInput.Width = 100
-  viewPort := viewport.New(ViewWidth, ViewHeight)
+  textInput.CharLimit = VIEW_WIDTH
+  textInput.Width = VIEW_WIDTH
+  viewPort := viewport.New(VIEW_WIDTH, VIEW_HEIGHT)
 
   // Setup the client listeners
   (*client).Event().On("", func(this chat.EventListener, instruction ins.Instruction) {

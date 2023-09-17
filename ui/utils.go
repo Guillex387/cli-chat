@@ -1,18 +1,19 @@
 package ui
 
 // A function to add line breaks
-func FormatText(str string, breakPos int, margin int) string {
+func FormatText(str string, breakPos int) string {
   result := ""
-  separator := ""
-  separator += "\n"
-  for i := 0; i < margin; i++ {
-    separator += " "
-  }
-  for i, char := range str {
+  counter := 0
+  for _, char := range str {
     result += string(char)
-    if i == (breakPos - 1) {
-      result += separator
+    if char == '\n' {
+      counter = 0
     }
+    if counter == (breakPos - 1) {
+      result += "\n"
+      counter = 0
+    }
+    counter++
   }
   return result
 }
