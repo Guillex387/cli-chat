@@ -33,4 +33,29 @@ jobs:
         sha256sum: TRUE
         md5sum: FALSE
         goversion: https://dl.google.com/go/go1.20.7.linux-amd64.tar.gz
-
+  release-mac-amd64:
+    name: release macOS amd64
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: wangyoucao577/go-release-action@v1.40
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: darwin
+        goarch: amd64
+        sha256sum: TRUE
+        md5sum: FALSE
+        goversion: https://dl.google.com/go/go1.20.7.linux-amd64.tar.gz
+  release-mac-arm64:
+    name: release macOS arm64
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: wangyoucao577/go-release-action@v1.40
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: darwin
+        goarch: arm64
+        sha256sum: TRUE
+        md5sum: FALSE
+        goversion: https://dl.google.com/go/go1.20.7.linux-amd64.tar.gz
