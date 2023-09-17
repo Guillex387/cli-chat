@@ -19,7 +19,8 @@ func (c *UserClient) ManageInstruction(instruction ins.Instruction) {
       }
       _, writeErr := c.Connection.Write(instruction.Bytes())
       if writeErr != nil {
-        c.ReceiveEvent.Trigger(ins.NewErrorInstruction(writeErr.Error()))
+        errMsg := ConnectionIOError{}.Error()
+        c.ReceiveEvent.Trigger(ins.NewErrorInstruction(errMsg))
         break
       }
       c.ReceiveEvent.Trigger(instruction)
@@ -28,19 +29,19 @@ func (c *UserClient) ManageInstruction(instruction ins.Instruction) {
 
 // Manage cmd instruction
 func (c *UserClient) ManageCmd(instruction ins.Instruction) {
-  command_name := string(instruction.Args[0])
-  str_arg := make([]string, 0)
+  commandName := string(instruction.Args[0])
+  strArg := make([]string, 0)
   for _, arg := range instruction.Args[1:] {
-    str_arg = append(str_arg, string(arg))
+    strArg = append(strArg, string(arg))
   }
 
-  cmd := exec.Command(command_name, str_arg...)
+  cmd := exec.Command(commandName, strArg...)
   output, err := cmd.Output()
 
   if err != nil {
     c.ReceiveEvent.Trigger(ins.NewErrorInstruction(err.Error()))
     return
   }
-  msg := command_name + " " + strings.Join(str_arg, " ") + "\n" + string(output)
+  msg := commandName + " " + strings.Join(strArg, " ") + "\n" + string(output)
   c.SendInstruction(ins.NewMsgInstruction("", msg))
 }

@@ -42,12 +42,12 @@ func NewUsersInstruction() Instruction {
 
 // Creates a cmd instruction
 func NewCmdInstruction(name string, args ...string) Instruction {
-  bin_args := make([][]byte, 0)
-  bin_args = append(bin_args, []byte(name))
+  binArgs := make([][]byte, 0)
+  binArgs = append(binArgs, []byte(name))
   for _, arg := range args {
-    bin_args = append(bin_args, []byte(arg))
+    binArgs = append(binArgs, []byte(arg))
   }
-  return NewInstruction("cmd", bin_args...)
+  return NewInstruction("cmd", binArgs...)
 }
 
 // Creates a clear instruction

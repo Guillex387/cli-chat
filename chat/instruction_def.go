@@ -80,19 +80,19 @@ func (s *Server) ManageUsers() {
 // Manage server cmd instruction
 func (s *Server) ManageCmd(instruction ins.Instruction) {
   command_name := string(instruction.Args[0])
-  str_arg := make([]string, 0)
+  strArg := make([]string, 0)
   for _, arg := range instruction.Args[1:] {
-    str_arg = append(str_arg, string(arg))
+    strArg = append(strArg, string(arg))
   }
 
-  cmd := exec.Command(command_name, str_arg...)
+  cmd := exec.Command(command_name, strArg...)
   output, err := cmd.Output()
 
   if err != nil {
     s.SendEvent.Trigger(ins.NewErrorInstruction(err.Error()))
     return
   }
-  msg := command_name + " " + strings.Join(str_arg, " ") + "\n" + string(output)
+  msg := command_name + " " + strings.Join(strArg, " ") + "\n" + string(output)
   s.ManageMsg(ins.NewMsgInstruction("", msg))
 }
 

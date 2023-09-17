@@ -45,8 +45,8 @@ func (i Instruction) Bytes() []byte {
 
 // Parse a instruction buffer to a instruction
 func BytesToInstruction(buffer []byte) Instruction {
-  str_buffer := RemoveLineBreaks(string(buffer))
-  splits := strings.Split(str_buffer, " ")
+  strBuffer := RemoveLineBreaks(string(buffer))
+  splits := strings.Split(strBuffer, " ")
   args := make([][]byte, 0)
   for _, split := range splits[1:] {
     arg, _ := base64.StdEncoding.DecodeString(split)
