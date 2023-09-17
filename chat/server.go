@@ -72,21 +72,23 @@ func (s *Server) FindUser(name string) int {
 func (s *Server) AddUser(user User) {
   s.UserArray = append(s.UserArray, user)
   s.ReplyInstruction(ins.NewLogInstruction(user.Name + " joined to chat"), "")
-  user.Listen()
+  user.Listen(s)
   user.MessageEvent.OnAny(func(this EventListener, instruction ins.Instruction) {
     s.ManageUserInstruction(&user, instruction)
   })
 }
 
-// Removes a user from the chat
-func (s *Server) DeleteUser(user User) {
+// Removes a user from the chat and his connection
+func (s *Server) DeleteUser(user User, close bool) {
   findIndex := s.FindUser(user.Name)
   if findIndex == -1 {
     return
   }
   s.UserArray = append(s.UserArray[0:findIndex], s.UserArray[(findIndex + 1):]...)
-  user.Close()
   s.ReplyInstruction(ins.NewLogInstruction(user.Name + " closed connection"), "")
+  if (close) {
+    user.Close()
+  }
 }
 
 // Remove all users from the chat
@@ -108,6 +110,8 @@ func (s *Server) Listen() {
         default:
           break
       }
+
+      time.Sleep(s.refreshTime)
 
       conn, err := s.ConnListener.Accept()
       if err != nil {
@@ -141,7 +145,6 @@ func (s *Server) Listen() {
       user := NewUser(userName, conn, s.refreshTime)
       user.SendInstruction(ins.NewOkInstruction())
       s.AddUser(user)
-      time.Sleep(s.refreshTime)
     }
   })
 }

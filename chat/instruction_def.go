@@ -57,7 +57,7 @@ func (s *Server) ManageKill(instruction ins.Instruction) {
     s.SendEvent.Trigger(ins.NewErrorInstruction(errorMsg))
     return
   }
-  s.DeleteUser(s.UserArray[user])
+  s.DeleteUser(s.UserArray[user], true)
 }
 
 // Manage server end instruction
@@ -95,7 +95,7 @@ func (s *Server) ManageUserMsg(user *User, instruction ins.Instruction) {
 
 // Manage user end instruction
 func (s *Server) ManageUserEnd(user *User) {
-  s.DeleteUser(*user)
+  s.DeleteUser(*user, true)
 }
 
 // Manage user users instruction

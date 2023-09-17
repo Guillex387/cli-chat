@@ -2,9 +2,9 @@ package chat
 
 import (
 	"bufio"
+	"cli-chat/ins"
 	"net"
 	"time"
-  "cli-chat/ins"
 )
 
 // User (in server) struct representation
@@ -27,7 +27,7 @@ func (u *User) SendInstruction(instruction ins.Instruction) {
 }
 
 // Listen the incoming message from the user connection
-func (u *User) Listen() {
+func (u *User) Listen(server *Server) {
   u.Listener.Open(func(stop chan struct{}) {
     reader := bufio.NewReader(u.Connection)
     for {
@@ -42,7 +42,10 @@ func (u *User) Listen() {
       time.Sleep(u.refreshTime)
       instructionStr, err := reader.ReadString('\n')
       if err != nil {
-        continue
+        server.DeleteUser(*u, false)
+        u.MessageEvent.Clear()
+        u.Connection.Close()
+        return
       }
       instruction := ins.BytesToInstruction([]byte(instructionStr))
       u.MessageEvent.Trigger(instruction)

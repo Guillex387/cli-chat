@@ -18,6 +18,9 @@ func GetLocalIp() string {
   return localAddr.IP.String()
 }
 
+// Executes a command in the machine and returns
+// and output instruction, and error or message
+// with the command output
 func ExecuteCmd(cmd ins.Instruction) ins.Instruction {
   commandName := string(cmd.Args[0])
   strArg := make([]string, 0)
