@@ -112,11 +112,11 @@ func (s *Server) Listen() {
       if err != nil {
         continue
       }
-      instruction_str, err := bufio.NewReader(conn).ReadString('\n')
+      instructionStr, err := bufio.NewReader(conn).ReadString('\n')
       if err != nil {
         continue
       }
-      instruction := ins.BytesToInstruction([]byte(instruction_str)) 
+      instruction := ins.BytesToInstruction([]byte(instructionStr)) 
 
       if instruction.Id != "open" {
         conn.Write(ins.NewErrorInstruction("Unknown instruction").Bytes())

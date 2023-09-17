@@ -39,11 +39,11 @@ func (u *User) Listen() {
       }
 
       time.Sleep(500 * time.Millisecond)
-      instruction_str, err := reader.ReadString('\n')
+      instructionStr, err := reader.ReadString('\n')
       if err != nil {
         continue
       }
-      instruction := ins.BytesToInstruction([]byte(instruction_str))
+      instruction := ins.BytesToInstruction([]byte(instructionStr))
       u.MessageEvent.Trigger(instruction)
     }
   })
