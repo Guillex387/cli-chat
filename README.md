@@ -43,6 +43,9 @@ Inside the chat you have different commands:
 
 - `/end` for end the chat connection
 - `/kill username` for delete a user (host only)
+- `/users` for show the user list in the chat
+- `/clear` for clear the screen messages
+- `/cmd command` for execute a command and send the output to the chat
 
 ## License
 
