@@ -17,8 +17,6 @@ import (
 //
 // "end" -> Close a client/server connection
 //
-// "sendf" -> Send a file
-//
 // "kill" -> kill a user (Host only)
 //
 // "log" -> Send a server log (Host only)
